@@ -10,6 +10,7 @@
 #define INIT_GRID_RECT 1
 #define INIT_APP 0
 #define RECT_MOVING 2
+#define WINDOW_RESIZED 3
 
 
 int number_lines;
@@ -26,8 +27,9 @@ boolean is_moving_up = false;
 boolean is_moving_left = false;
 boolean is_moving_down = false;
 boolean timer_set = false;
+boolean play = false;
 
-int length_snake =5;
+int length_snake = 20;
 
 std::vector<RECT> snake_tail;
 
@@ -51,6 +53,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 GetClientRect(hwnd, &rectWindow);
 
                 if( is_moving_right ) {
+                    REPAINT_NEEDED = RECT_MOVING;
                     RECT rectOld = rect;
 
                     rect.left += cell_width;
@@ -72,9 +75,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     }else{
                         rect_column +=1;
                     }
-
                     InvalidateRect(hwnd, &rect, TRUE);
-                    REPAINT_NEEDED = RECT_MOVING;
                 }
                 if( is_moving_left ){
                     RECT rectOld = rect;
@@ -196,7 +197,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         is_moving_up = false;
                     }
                     break;
-                case VK_RETURN:
+                case VK_ESCAPE:
                     is_moving_right = false;
                     is_moving_left = false;
                     is_moving_up = false;
@@ -224,6 +225,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     DestroyWindow(hButton);
                     InvalidateRect(hwnd, nullptr, TRUE);
                     REPAINT_NEEDED = INIT_GRID_RECT;
+                    play = true;
                 }
             }
 
@@ -268,6 +270,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     DeleteObject(hbrush);
 
                     EndPaint(hwnd, &ps);
+                    break;
                 }
                 case INIT_GRID_RECT:{
                     // Initialisation de toute la grille
@@ -299,14 +302,78 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     DeleteObject(hbrush2);
 
                     EndPaint(hwnd, &ps);
+                    break;
+                }
+                case WINDOW_RESIZED:{
+                    // On est dans le cas où on redimensionne la fenêtre du jeu
+                    if( play ){
+                        HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
+                        if( hButton ){
+                            DestroyWindow(hButton);
+                        }
+                        RECT rectWindow;
+                        GetClientRect(hwnd, &rectWindow);
+
+                        int width = rectWindow.right - rectWindow.left;
+                        int height = rectWindow.bottom - rectWindow.top;
+
+                        createPlayButton(hwnd, width, height);
+
+                        // Il faut recentrer le bouton
+                        PAINTSTRUCT ps;
+                        HDC hdc = BeginPaint(hwnd, &ps);
+                        HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
+                        FillRect(hdc, &rectWindow, hbrush);
+                        DeleteObject(hbrush);
+                        DrawGrid(hdc, rectWindow ,RGB(255,255,255));
+
+                        EndPaint(hwnd, &ps);
+                    }else{
+                        HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
+                        if( hButton ){
+                            DestroyWindow(hButton);
+                        }
+
+                        RECT rectWindow;
+                        GetClientRect(hwnd, &rectWindow);
+
+                        int width = rectWindow.right - rectWindow.left;
+                        int height = rectWindow.bottom - rectWindow.top;
+
+                        createPlayButton(hwnd, width, height);
+
+                        // Il faut recentrer le bouton
+                        PAINTSTRUCT ps;
+                        HDC hdc = BeginPaint(hwnd, &ps);
+                        
+                        // Remplir toute la zone client avec une couleur de fond
+                        RECT rect;
+                        GetClientRect(hwnd, &rect);
+                        HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
+                        FillRect(hdc, &rect, hbrush);
+                        DeleteObject(hbrush);
+
+                        EndPaint(hwnd, &ps);
+                    }
+                    break;
                 }
             }
             return 0;
         }
         case WM_SIZE:{
-            updatePlayButtonPosition(hwnd);
+            is_moving_right = false;
+            is_moving_left = false;
+            is_moving_up = false;
+            is_moving_down = false;
+            if( timer_set ){
+                KillTimer(hwnd, MOVE_TIMER_ID);
+                timer_set = false;
+            }
+
             // Marquer toute la fenêtre comme invalide pour déclencher un WM_PAINT
             InvalidateRect(hwnd, nullptr, TRUE);
+
+            REPAINT_NEEDED = WINDOW_RESIZED;
         }
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
