@@ -307,6 +307,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 case WINDOW_RESIZED:{
                     // On est dans le cas où on redimensionne la fenêtre du jeu
                     if( play ){
+                        // Rajout de commentaire
                         HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
                         if( hButton ){
                             DestroyWindow(hButton);
