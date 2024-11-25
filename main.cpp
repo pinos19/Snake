@@ -157,10 +157,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         }
         case WM_KEYDOWN:{
             if( wParam == VK_RIGHT || wParam == VK_LEFT || wParam == VK_UP || wParam == VK_DOWN ){
-                is_moving_right = false;
-                is_moving_left = false;
-                is_moving_up = false;
-                is_moving_down = false;
                 if( !timer_set ){
                     SetTimer(hwnd, MOVE_TIMER_ID, SPEED_RECTANGLE, nullptr);
                     timer_set = true;
@@ -168,16 +164,37 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
             switch (wParam){
                 case VK_RIGHT:
-                    is_moving_right =true;
+                    if( !is_moving_left ){
+                        // Se déplace autre que à gauche
+                        is_moving_right =true;
+                        is_moving_left = false;
+                        is_moving_up = false;
+                        is_moving_down = false;
+                    }
                     break;
                 case VK_LEFT:
-                    is_moving_left =true;
+                    if( !is_moving_right ){
+                        is_moving_left =true;
+                        is_moving_right = false;
+                        is_moving_up = false;
+                        is_moving_down = false;
+                    }
                     break;
                 case VK_UP:
-                    is_moving_up =true;
+                    if( !is_moving_down ){
+                        is_moving_up =true;
+                        is_moving_left = false;
+                        is_moving_right = false;
+                        is_moving_down = false;
+                    }
                     break;
                 case VK_DOWN:
-                    is_moving_down =true;
+                    if( !is_moving_down ){
+                        is_moving_down =true;
+                        is_moving_left = false;
+                        is_moving_right = false;
+                        is_moving_up = false;
+                    }
                     break;
                 case VK_RETURN:
                     is_moving_right = false;
