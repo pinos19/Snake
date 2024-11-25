@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <iostream>
+#include <vector>
 
 #define BUTTON_PLAY_ID 1
 #define MOVE_TIMER_ID 2
@@ -26,8 +27,11 @@ boolean is_moving_left = false;
 boolean is_moving_down = false;
 boolean timer_set = false;
 
+int length_snake =5;
+
+std::vector<RECT> snake_tail;
+
 RECT rect;
-RECT rectOld;
 
 // Variables FLAGS
 int REPAINT_NEEDED = INIT_APP;
@@ -47,10 +51,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 GetClientRect(hwnd, &rectWindow);
 
                 if( is_moving_right ) {
-                    rectOld = rect;
+                    RECT rectOld = rect;
 
                     rect.left += cell_width;
                     rect.right += cell_width;
+
+                    // On actualise la queue du serpent
+                    for(int i =0; i<length_snake; i++){
+                        RECT rect_temp;
+                        rect_temp = snake_tail.at(i);
+                        snake_tail.at(i) = rectOld;
+                        rectOld = rect_temp;
+                        InvalidateRect(hwnd, &rect_temp, TRUE);
+                    }
 
                     if( rect.right > rectWindow.right ){
                         // On dépasse à droite, on repasse à gauche
@@ -60,15 +73,23 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         rect_column +=1;
                     }
 
-                    InvalidateRect(hwnd, &rectOld, TRUE);
                     InvalidateRect(hwnd, &rect, TRUE);
                     REPAINT_NEEDED = RECT_MOVING;
                 }
                 if( is_moving_left ){
-                    rectOld = rect;
+                    RECT rectOld = rect;
 
                     rect.left -= cell_width;
                     rect.right -= cell_width;
+
+                    // On actualise la queue du serpent
+                    for(int i =0; i<length_snake; i++){
+                        RECT rect_temp;
+                        rect_temp = snake_tail.at(i);
+                        snake_tail.at(i) = rectOld;
+                        rectOld = rect_temp;
+                        InvalidateRect(hwnd, &rect_temp, TRUE);
+                    }
 
                     if( rect.left < rectWindow.left ){
                         // On dépasse à gauche, on repasse à droite
@@ -78,15 +99,23 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         rect_column -=1;
                     }
 
-                    InvalidateRect(hwnd, &rectOld, TRUE);
                     InvalidateRect(hwnd, &rect, TRUE);
                     REPAINT_NEEDED = RECT_MOVING;
                 }
                 if( is_moving_up ){
-                    rectOld = rect;
+                    RECT rectOld = rect;
 
                     rect.top -= cell_width;
                     rect.bottom -= cell_width;
+
+                    // On actualise la queue du serpent
+                    for(int i =0; i<length_snake; i++){
+                        RECT rect_temp;
+                        rect_temp = snake_tail.at(i);
+                        snake_tail.at(i) = rectOld;
+                        rectOld = rect_temp;
+                        InvalidateRect(hwnd, &rect_temp, TRUE);
+                    }
 
                     if( rect.top < rectWindow.top ){
                         // On dépasse à gauche, on repasse à droite
@@ -96,15 +125,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         rect_line -=1;
                     }
 
-                    InvalidateRect(hwnd, &rectOld, TRUE);
                     InvalidateRect(hwnd, &rect, TRUE);
                     REPAINT_NEEDED = RECT_MOVING;
                 }
                 if( is_moving_down ){
-                    rectOld = rect;
+                    RECT rectOld = rect;
 
                     rect.top += cell_width;
                     rect.bottom += cell_width;
+
+                    for(int i =0; i<length_snake; i++){
+                        RECT rect_temp;
+                        rect_temp = snake_tail.at(i);
+                        snake_tail.at(i) = rectOld;
+                        rectOld = rect_temp;
+                        InvalidateRect(hwnd, &rect_temp, TRUE);
+                    }
 
                     if( rect.bottom > rectWindow.bottom ){
                         // On dépasse à gauche, on repasse à droite
@@ -114,7 +150,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         rect_line +=1;
                     }
 
-                    InvalidateRect(hwnd, &rectOld, TRUE);
                     InvalidateRect(hwnd, &rect, TRUE);
                     REPAINT_NEEDED = RECT_MOVING;
                 }
@@ -239,7 +274,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     HDC hdc = BeginPaint(hwnd, &ps);
 
                     HBRUSH hbrush1 = CreateSolidBrush(RGB(50,50,50));
-                    FillRect(hdc, &rectOld, hbrush1);
+                    FillRect(hdc, &snake_tail.at(length_snake-1), hbrush1);
                     DeleteObject(hbrush1);
 
                     HBRUSH hbrush2 = CreateSolidBrush(RGB(255,255,255));
@@ -301,6 +336,10 @@ void initRect(HDC hdc){
     rect_line = n_lines;
 
     rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_width+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_width - 1};
+    for(int i = 0; i< length_snake; i++){
+        snake_tail.push_back(rect);
+    }
+
     HBRUSH hBrush = CreateSolidBrush(RGB(255,255,255));
     FillRect(hdc, &rect, hBrush);
     DeleteObject(hBrush);
