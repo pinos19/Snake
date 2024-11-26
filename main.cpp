@@ -11,7 +11,7 @@
 #define INIT_APP 0
 #define RECT_MOVING 2
 #define WINDOW_RESIZED 3
-
+#define CONTINUE_GAME 4
 
 int number_lines;
 int number_columns;
@@ -263,8 +263,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
                 if( hButton ){
                     DestroyWindow(hButton);
-                    InvalidateRect(hwnd, nullptr, TRUE);
-                    REPAINT_NEEDED = INIT_GRID_RECT;
+                    if( !grid_set ){
+                        InvalidateRect(hwnd, nullptr, TRUE);
+                        REPAINT_NEEDED = INIT_GRID_RECT;
+                    }else{
+                        
+                    }
                 }
             }
 
@@ -384,6 +388,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         DeleteObject(hbrush);
                     }
 
+                    EndPaint(hwnd, &ps);
+                    break;
+                }
+                case CONTINUE_GAME:{
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hwnd, &ps);
                     EndPaint(hwnd, &ps);
                     break;
                 }
