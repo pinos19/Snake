@@ -12,14 +12,12 @@
 #define RECT_MOVING 2
 #define WINDOW_RESIZED 3
 
-struct RECT2 {
-    RECT rect;
-    int n_column;
-    int n_line;
-};
 
 int number_lines;
 int number_columns;
+int rect_column;
+int rect_line;
+
 int cell_width;
 int cell_height;
 int offsetX;
@@ -33,10 +31,11 @@ boolean timer_set = false;
 boolean grid_set = false;
 boolean initialized = false;
 
-int length_snake = 5;
+int length_snake = 2;
 
-std::vector<RECT2> snake_tail;
-RECT2 rect;
+std::vector<RECT> snake_tail;
+
+RECT rect;
 
 // Variables FLAGS
 int REPAINT_NEEDED = INIT_APP;
@@ -64,6 +63,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     rect.left += cell_width;
                     rect.right += cell_width;
 
+                    InvalidateRect(hwnd, &rectOld, TRUE);
+
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
                         RECT rect_temp;
@@ -88,6 +89,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     rect.left -= cell_width;
                     rect.right -= cell_width;
 
+                    InvalidateRect(hwnd, &rectOld, TRUE);
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
                         RECT rect_temp;
@@ -114,6 +116,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     rect.top -= cell_height;
                     rect.bottom -= cell_height;
 
+                    InvalidateRect(hwnd, &rectOld, TRUE);
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
                         RECT rect_temp;
@@ -140,6 +143,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     rect.top += cell_height;
                     rect.bottom += cell_height;
 
+                    InvalidateRect(hwnd, &rectOld, TRUE);
                     for(int i =0; i<length_snake; i++){
                         RECT rect_temp;
                         rect_temp = snake_tail.at(i);
@@ -195,7 +199,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     }
                     break;
                 case VK_DOWN:
-                    if( !is_moving_down ){
+                    if( !is_moving_up ){
                         is_moving_down =true;
                         is_moving_left = false;
                         is_moving_right = false;
@@ -452,20 +456,20 @@ void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor){
     SelectObject(hdc, hOldPen);
     DeleteObject(hPen);
 }
-void initRect(HDC hdc){
+void initRect(HDC hdc){ 
     int n_lines = number_lines/2;
     int n_columns = number_columns/2;
 
     rect_column = n_columns;
     rect_line = n_lines;
 
-    rect = {{offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1},rect_column,rect_line};
+    rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1};
     for(int i = 0; i< length_snake; i++){
         snake_tail.push_back(rect);
     }
 
     HBRUSH hBrush = CreateSolidBrush(RGB(255,255,255));
-    FillRect(hdc, &rect.rect, hBrush);
+    FillRect(hdc, &rect, hBrush);
     DeleteObject(hBrush);
 }
 void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor) {
