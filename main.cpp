@@ -15,8 +15,8 @@
 
 int number_lines;
 int number_columns;
-int rect_column;
-int rect_line;
+std::vector<int> rect_column;
+std::vector<int> rect_line;
 
 int cell_width;
 int cell_height;
@@ -31,7 +31,7 @@ boolean timer_set = false;
 boolean grid_set = false;
 boolean initialized = false;
 
-int length_snake = 2;
+int length_snake = 5;
 
 std::vector<RECT> snake_tail;
 
@@ -56,6 +56,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 RECT rectWindow;
                 GetClientRect(hwnd, &rectWindow);
 
+                int rectColumnOld = rect_column.at(0);
+                int rectLineOld = rect_line.at(0);
+
                 if( is_moving_right ) {
                     REPAINT_NEEDED = RECT_MOVING;
                     RECT rectOld = rect;
@@ -67,19 +70,26 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
+                        int column_temp = rect_column.at(i+1);
+                        int line_temp = rect_line.at(i+1);  
+                        rect_column.at(i+1) = rectColumnOld;
+                        rect_line.at(i+1) = rectLineOld;
+                        rectColumnOld = column_temp;
+                        rectLineOld = line_temp;
+
                         RECT rect_temp;
                         rect_temp = snake_tail.at(i);
                         snake_tail.at(i) = rectOld;
-                        rectOld = rect_temp;
+                        rectOld = rect_temp;    
                         InvalidateRect(hwnd, &rect_temp, TRUE);
                     }
 
                     if( rect.right > rectWindow.right ){
                         // On dépasse à droite, on repasse à gauche
-                        rect = {offsetX+2, offsetY + (rect_line-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line*cell_height - 1};
-                        rect_column = 1;
+                        rect = {offsetX+2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
+                        rect_column.at(0) = 1;
                     }else{
-                        rect_column +=1;
+                        rect_column.at(0) +=1;
                     }
                     InvalidateRect(hwnd, &rect, TRUE);
                 }
@@ -92,6 +102,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     InvalidateRect(hwnd, &rectOld, TRUE);
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
+                        int column_temp = rect_column.at(i+1);
+                        int line_temp = rect_line.at(i+1);  
+                        rect_column.at(i+1) = rectColumnOld;
+                        rect_line.at(i+1) = rectLineOld;
+                        rectColumnOld = column_temp;
+                        rectLineOld = line_temp;
+
                         RECT rect_temp;
                         rect_temp = snake_tail.at(i);
                         snake_tail.at(i) = rectOld;
@@ -101,10 +118,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.left < rectWindow.left ){
                         // On dépasse à gauche, on repasse à droite
-                        rect = {offsetX + (number_columns-1)*cell_width +2, offsetY + (rect_line-1)*cell_height+2, offsetX + number_columns*cell_width -1, offsetY + rect_line*cell_height - 1};
-                        rect_column = number_columns;
+                        rect = {offsetX + (number_columns-1)*cell_width +2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + number_columns*cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
+                        rect_column.at(0) = number_columns;
                     }else{
-                        rect_column -=1;
+                        rect_column.at(0) -= 1;
                     }
 
                     InvalidateRect(hwnd, &rect, TRUE);
@@ -119,6 +136,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     InvalidateRect(hwnd, &rectOld, TRUE);
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
+                        int column_temp = rect_column.at(i+1);
+                        int line_temp = rect_line.at(i+1);  
+                        rect_column.at(i+1) = rectColumnOld;
+                        rect_line.at(i+1) = rectLineOld;
+                        rectColumnOld = column_temp;
+                        rectLineOld = line_temp;
+
                         RECT rect_temp;
                         rect_temp = snake_tail.at(i);
                         snake_tail.at(i) = rectOld;
@@ -128,10 +152,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.top < rectWindow.top ){
                         // On dépasse à gauche, on repasse à droite
-                        rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (number_lines-1)*cell_height+2, offsetX + rect_column*cell_width -1, offsetY + number_lines*cell_height - 1};
-                        rect_line = number_lines;
+                        rect = {offsetX + (rect_column.at(0)-1)*cell_width +2, offsetY + (number_lines-1)*cell_height+2, offsetX + rect_column.at(0)*cell_width -1, offsetY + number_lines*cell_height - 1};
+                        rect_line.at(0) = number_lines;
                     }else{
-                        rect_line -=1;
+                        rect_line.at(0) -= 1;
                     }
 
                     InvalidateRect(hwnd, &rect, TRUE);
@@ -145,6 +169,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     InvalidateRect(hwnd, &rectOld, TRUE);
                     for(int i =0; i<length_snake; i++){
+                        int column_temp = rect_column.at(i+1);
+                        int line_temp = rect_line.at(i+1);  
+                        rect_column.at(i+1) = rectColumnOld;
+                        rect_line.at(i+1) = rectLineOld;
+                        rectColumnOld = column_temp;
+                        rectLineOld = line_temp;
+
                         RECT rect_temp;
                         rect_temp = snake_tail.at(i);
                         snake_tail.at(i) = rectOld;
@@ -154,10 +185,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.bottom > rectWindow.bottom ){
                         // On dépasse à gauche, on repasse à droite
-                        rect = {offsetX + (rect_column-1)*cell_width +2, offsetY +2, offsetX + rect_column*cell_width -1, offsetY + cell_height - 1};
-                        rect_line = 1;
+                        rect = {offsetX + (rect_column.at(0)-1)*cell_width +2, offsetY +2, offsetX + rect_column.at(0)*cell_width -1, offsetY + cell_height - 1};
+                        rect_line.at(0) = 1;
                     }else{
-                        rect_line +=1;
+                        rect_line.at(0) += 1;
                     }
 
                     InvalidateRect(hwnd, &rect, TRUE);
@@ -416,7 +447,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 void updateSnake(){
     // Fonction qui met à jour les dimensions des rectangles du serpent
 
-    rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (rect_line-1)*cell_height+2, offsetX + rect_column*cell_width -1, offsetY + rect_line*cell_height - 1};
+    // rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (rect_line-1)*cell_height+2, offsetX + rect_column*cell_width -1, offsetY + rect_line*cell_height - 1};
 
 
 
@@ -460,12 +491,14 @@ void initRect(HDC hdc){
     int n_lines = number_lines/2;
     int n_columns = number_columns/2;
 
-    rect_column = n_columns;
-    rect_line = n_lines;
+    rect_column.push_back(n_columns);
+    rect_line.push_back(n_lines);
 
     rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1};
     for(int i = 0; i< length_snake; i++){
         snake_tail.push_back(rect);
+        rect_column.push_back(n_columns);
+        rect_line.push_back(n_lines);
     }
 
     HBRUSH hBrush = CreateSolidBrush(RGB(255,255,255));
