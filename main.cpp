@@ -12,12 +12,14 @@
 #define RECT_MOVING 2
 #define WINDOW_RESIZED 3
 
+struct RECT2 {
+    RECT rect;
+    int n_column;
+    int n_line;
+};
 
 int number_lines;
 int number_columns;
-int rect_column;
-int rect_line;
-
 int cell_width;
 int cell_height;
 int offsetX;
@@ -31,11 +33,10 @@ boolean timer_set = false;
 boolean grid_set = false;
 boolean initialized = false;
 
-int length_snake = 1;
+int length_snake = 5;
 
-std::vector<RECT> snake_tail;
-
-RECT rect;
+std::vector<RECT2> snake_tail;
+RECT2 rect;
 
 // Variables FLAGS
 int REPAINT_NEEDED = INIT_APP;
@@ -458,13 +459,13 @@ void initRect(HDC hdc){
     rect_column = n_columns;
     rect_line = n_lines;
 
-    rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1};
+    rect = {{offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1},rect_column,rect_line};
     for(int i = 0; i< length_snake; i++){
         snake_tail.push_back(rect);
     }
 
     HBRUSH hBrush = CreateSolidBrush(RGB(255,255,255));
-    FillRect(hdc, &rect, hBrush);
+    FillRect(hdc, &rect.rect, hBrush);
     DeleteObject(hBrush);
 }
 void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor) {
