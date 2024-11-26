@@ -29,8 +29,9 @@ boolean is_moving_left = false;
 boolean is_moving_down = false;
 boolean timer_set = false;
 boolean grid_set = false;
+boolean initialized = false;
 
-int length_snake = 20;
+int length_snake = 1;
 
 std::vector<RECT> snake_tail;
 
@@ -46,6 +47,7 @@ void updatePlayButtonPosition(HWND hwnd);
 void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor);
 void initRect(HDC hdc);
 void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor);
+void updateSnake();
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -264,10 +266,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     HDC hdc = BeginPaint(hwnd, &ps);
 
                     // Remplir toute la zone client avec une couleur de fond
-                    RECT rect;
-                    GetClientRect(hwnd, &rect);
+                    RECT rectWindow;
+                    GetClientRect(hwnd, &rectWindow);
                     HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
-                    FillRect(hdc, &rect, hbrush);
+                    FillRect(hdc, &rectWindow, hbrush);
                     DeleteObject(hbrush);
 
                     EndPaint(hwnd, &ps);
@@ -318,13 +320,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     int width = rectWindow.right - rectWindow.left;
                     int height = rectWindow.bottom - rectWindow.top;
+                    // Création du bouton bien placé
+                    createPlayButton(hwnd, width, height);
 
                     // Il faut recentrer le bouton
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);
-
-                    // Création du bouton bien placé
-                    createPlayButton(hwnd, width, height);
 
                     // Remplissage du fond
                     HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
@@ -334,6 +335,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     // Actualisation de la grille
                     if( grid_set ){
                         UpdateGrid(hdc, rectWindow ,RGB(255,255,255));
+                        updateSnake();
+
+                        HBRUSH hbrush = CreateSolidBrush(RGB(255,255,255));
+                        FillRect(hdc, &rect, hbrush);
+
+                        for(int i =0; i<length_snake; i++){
+                            RECT rect_temp;
+                            rect_temp = snake_tail.at(i);
+                            FillRect(hdc, &rect_temp, hbrush);
+                        }
+                        DeleteObject(hbrush);
                     }
 
                     EndPaint(hwnd, &ps);
@@ -354,9 +366,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             // Marquer toute la fenêtre comme invalide pour déclencher un WM_PAINT
             InvalidateRect(hwnd, nullptr, TRUE);
-
-            REPAINT_NEEDED = WINDOW_RESIZED;
-            break;
+            if( initialized ){
+                REPAINT_NEEDED = WINDOW_RESIZED;
+            }
+            return 0;
         }
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -384,6 +397,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     if (!hwnd) return 0;
 
     ShowWindow(hwnd, nCmdShow);
+    initialized = true;
 
     MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0)) {
@@ -394,6 +408,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     return 0;
 }
 
+void updateSnake(){
+    // Fonction qui met à jour les dimensions des rectangles du serpent
+
+    rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (rect_line-1)*cell_height+2, offsetX + rect_column*cell_width -1, offsetY + rect_line*cell_height - 1};
+
+
+
+
+}
 void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor){
     // Fonction qui permet de mettre à jour la grille.
     // Définir la brosse pour dessiner les lignes
