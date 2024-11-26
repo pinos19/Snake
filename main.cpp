@@ -447,11 +447,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 void updateSnake(){
     // Fonction qui met à jour les dimensions des rectangles du serpent
 
-    // rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (rect_line-1)*cell_height+2, offsetX + rect_column*cell_width -1, offsetY + rect_line*cell_height - 1};
+    // On met à jour la tête du serpent
+    rect = {offsetX + (rect_column.at(0)-1)*cell_width +2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + rect_column.at(0)*cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
 
-
-
-
+    // Il faut mettre à jour le corps du serpent
+    for(int i = 0; i <length_snake; i++){
+        RECT rect_temp;
+        rect_temp = {offsetX + (rect_column.at(i+1)-1)*cell_width +2, offsetY + (rect_line.at(i+1)-1)*cell_height+2, offsetX + rect_column.at(i+1)*cell_width -1, offsetY + rect_line.at(i+1)*cell_height - 1};
+        snake_tail.at(i) = rect_temp;
+    }
 }
 void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor){
     // Fonction qui permet de mettre à jour la grille.
