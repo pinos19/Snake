@@ -19,6 +19,7 @@ int rect_column;
 int rect_line;
 
 int cell_width;
+int cell_height;
 int offsetX;
 int offsetY;
 
@@ -27,7 +28,7 @@ boolean is_moving_up = false;
 boolean is_moving_left = false;
 boolean is_moving_down = false;
 boolean timer_set = false;
-boolean play = false;
+boolean grid_set = false;
 
 int length_snake = 20;
 
@@ -44,6 +45,7 @@ void playButtonStyle(DRAWITEMSTRUCT *const pdis);
 void updatePlayButtonPosition(HWND hwnd);
 void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor);
 void initRect(HDC hdc);
+void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor);
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -70,7 +72,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.right > rectWindow.right ){
                         // On dépasse à droite, on repasse à gauche
-                        rect = {offsetX+2,offsetY + (rect_line-1)*cell_width+2, offsetX + cell_width -1, offsetY + rect_line*cell_width - 1};
+                        rect = {offsetX+2, offsetY + (rect_line-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line*cell_height - 1};
                         rect_column = 1;
                     }else{
                         rect_column +=1;
@@ -94,7 +96,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.left < rectWindow.left ){
                         // On dépasse à gauche, on repasse à droite
-                        rect = {offsetX + (number_columns-1)*cell_width +2, offsetY + (rect_line-1)*cell_width+2, offsetX + number_columns*cell_width -1, offsetY + rect_line*cell_width - 1};
+                        rect = {offsetX + (number_columns-1)*cell_width +2, offsetY + (rect_line-1)*cell_height+2, offsetX + number_columns*cell_width -1, offsetY + rect_line*cell_height - 1};
                         rect_column = number_columns;
                     }else{
                         rect_column -=1;
@@ -106,8 +108,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if( is_moving_up ){
                     RECT rectOld = rect;
 
-                    rect.top -= cell_width;
-                    rect.bottom -= cell_width;
+                    rect.top -= cell_height;
+                    rect.bottom -= cell_height;
 
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
@@ -120,7 +122,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.top < rectWindow.top ){
                         // On dépasse à gauche, on repasse à droite
-                        rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (number_lines-1)*cell_width+2, offsetX + rect_column*cell_width -1, offsetY + number_lines*cell_width - 1};
+                        rect = {offsetX + (rect_column-1)*cell_width +2, offsetY + (number_lines-1)*cell_height+2, offsetX + rect_column*cell_width -1, offsetY + number_lines*cell_height - 1};
                         rect_line = number_lines;
                     }else{
                         rect_line -=1;
@@ -132,8 +134,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if( is_moving_down ){
                     RECT rectOld = rect;
 
-                    rect.top += cell_width;
-                    rect.bottom += cell_width;
+                    rect.top += cell_height;
+                    rect.bottom += cell_height;
 
                     for(int i =0; i<length_snake; i++){
                         RECT rect_temp;
@@ -145,7 +147,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                     if( rect.bottom > rectWindow.bottom ){
                         // On dépasse à gauche, on repasse à droite
-                        rect = {offsetX + (rect_column-1)*cell_width +2, offsetY +2, offsetX + rect_column*cell_width -1, offsetY + cell_width - 1};
+                        rect = {offsetX + (rect_column-1)*cell_width +2, offsetY +2, offsetX + rect_column*cell_width -1, offsetY + cell_height - 1};
                         rect_line = 1;
                     }else{
                         rect_line +=1;
@@ -225,7 +227,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     DestroyWindow(hButton);
                     InvalidateRect(hwnd, nullptr, TRUE);
                     REPAINT_NEEDED = INIT_GRID_RECT;
-                    play = true;
                 }
             }
 
@@ -306,56 +307,36 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 }
                 case WINDOW_RESIZED:{
                     // On est dans le cas où on redimensionne la fenêtre du jeu
-                    if( play ){
-                        // Rajout de commentaire
-                        HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
-                        if( hButton ){
-                            DestroyWindow(hButton);
-                        }
-                        RECT rectWindow;
-                        GetClientRect(hwnd, &rectWindow);
-
-                        int width = rectWindow.right - rectWindow.left;
-                        int height = rectWindow.bottom - rectWindow.top;
-
-                        createPlayButton(hwnd, width, height);
-
-                        // Il faut recentrer le bouton
-                        PAINTSTRUCT ps;
-                        HDC hdc = BeginPaint(hwnd, &ps);
-                        HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
-                        FillRect(hdc, &rectWindow, hbrush);
-                        DeleteObject(hbrush);
-                        DrawGrid(hdc, rectWindow ,RGB(255,255,255));
-
-                        EndPaint(hwnd, &ps);
-                    }else{
-                        HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
-                        if( hButton ){
-                            DestroyWindow(hButton);
-                        }
-
-                        RECT rectWindow;
-                        GetClientRect(hwnd, &rectWindow);
-
-                        int width = rectWindow.right - rectWindow.left;
-                        int height = rectWindow.bottom - rectWindow.top;
-
-                        createPlayButton(hwnd, width, height);
-
-                        // Il faut recentrer le bouton
-                        PAINTSTRUCT ps;
-                        HDC hdc = BeginPaint(hwnd, &ps);
-                        
-                        // Remplir toute la zone client avec une couleur de fond
-                        RECT rect;
-                        GetClientRect(hwnd, &rect);
-                        HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
-                        FillRect(hdc, &rect, hbrush);
-                        DeleteObject(hbrush);
-
-                        EndPaint(hwnd, &ps);
+                    // Actualisation du bouton Jouer (positionnement)
+                    HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
+                    if( hButton ){
+                        DestroyWindow(hButton);
                     }
+
+                    RECT rectWindow;
+                    GetClientRect(hwnd, &rectWindow);
+
+                    int width = rectWindow.right - rectWindow.left;
+                    int height = rectWindow.bottom - rectWindow.top;
+
+                    // Il faut recentrer le bouton
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hwnd, &ps);
+
+                    // Création du bouton bien placé
+                    createPlayButton(hwnd, width, height);
+
+                    // Remplissage du fond
+                    HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
+                    FillRect(hdc, &rectWindow, hbrush);
+                    DeleteObject(hbrush);
+
+                    // Actualisation de la grille
+                    if( grid_set ){
+                        UpdateGrid(hdc, rectWindow ,RGB(255,255,255));
+                    }
+
+                    EndPaint(hwnd, &ps);
                     break;
                 }
             }
@@ -375,6 +356,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             InvalidateRect(hwnd, nullptr, TRUE);
 
             REPAINT_NEEDED = WINDOW_RESIZED;
+            break;
         }
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -412,7 +394,40 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     return 0;
 }
 
+void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor){
+    // Fonction qui permet de mettre à jour la grille.
+    // Définir la brosse pour dessiner les lignes
+    HPEN hPen = CreatePen(PS_SOLID, 1, gridColor);
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 
+    // Largeur et hauteur de la zone cliente
+    int clientWidth = rect.right - rect.left;
+    int clientHeight = rect.bottom - rect.top;
+
+    // On calcule le cell width à partir du nombre de colonnes et de lignes
+    cell_width = clientWidth/number_columns;
+    cell_height = clientHeight/number_lines;
+
+    // Calculer le décalage pour centrer la grille
+    offsetX = (clientWidth % cell_width) / 2;
+    offsetY = (clientHeight % cell_height) / 2;
+
+    // Dessiner les lignes verticales
+    for (int x = rect.left + offsetX; x <= rect.right; x += cell_width) {
+        MoveToEx(hdc, x, rect.top, nullptr);
+        LineTo(hdc, x, rect.bottom);
+    }
+
+    // Dessiner les lignes horizontales
+    for (int y = rect.top + offsetY; y <= rect.bottom; y += cell_height) {
+        MoveToEx(hdc, rect.left, y, nullptr);
+        LineTo(hdc, rect.right, y);
+    }
+
+    // Restaurer la brosse précédente et nettoyer
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hPen);
+}
 void initRect(HDC hdc){
     int n_lines = number_lines/2;
     int n_columns = number_columns/2;
@@ -420,7 +435,7 @@ void initRect(HDC hdc){
     rect_column = n_columns;
     rect_line = n_lines;
 
-    rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_width+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_width - 1};
+    rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1};
     for(int i = 0; i< length_snake; i++){
         snake_tail.push_back(rect);
     }
@@ -439,6 +454,7 @@ void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor) {
     int clientHeight = rect.bottom - rect.top;
 
     cell_width = std::max(clientWidth, clientHeight)/RATIO_SNAKE;
+    cell_height = cell_width;
     number_lines = clientHeight/cell_width;
     number_columns = clientWidth/cell_width;
 
@@ -461,6 +477,9 @@ void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor) {
     // Restaurer la brosse précédente et nettoyer
     SelectObject(hdc, hOldPen);
     DeleteObject(hPen);
+
+    // On met la grille en true
+    grid_set = true;
 }
 void updatePlayButtonPosition(HWND hwnd){
     RECT rect;
