@@ -381,7 +381,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         HBRUSH hbrush = CreateSolidBrush(RGB(255,255,255));
                         FillRect(hdc, &rect, hbrush);
 
-                        for(int i =0; i<length_snake; i++){
+                        for(int i =0; i<length_snake-1; i++){
                             RECT rect_temp;
                             rect_temp = snake_tail.at(i);
                             FillRect(hdc, &rect_temp, hbrush);
@@ -411,7 +411,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     HBRUSH hbrush2 = CreateSolidBrush(RGB(255,255,255));
                     FillRect(hdc, &rect, hbrush2);
 
-                    for(int i =0; i<length_snake; i++){
+                    for(int i =0; i<length_snake-1; i++){
                         RECT rect_temp;
                         rect_temp = snake_tail.at(i);
                         FillRect(hdc, &rect_temp, hbrush2);
