@@ -204,7 +204,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 }
             }
             switch (wParam){
-                case VK_RIGHT:
+                case VK_RETURN:{
+                    HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
+                    if( hButton ){
+                        DestroyWindow(hButton);
+                    }
+                    if( !grid_set ){
+                        InvalidateRect(hwnd, nullptr, TRUE);
+                        REPAINT_NEEDED = INIT_GRID_RECT;
+                    }else{
+                        SetTimer(hwnd, MOVE_TIMER_ID, SPEED_RECTANGLE, nullptr);
+                        timer_set = true;
+                        InvalidateRect(hwnd, nullptr, TRUE);
+                        REPAINT_NEEDED = CONTINUE_GAME;
+                    }
+                }
+                case VK_RIGHT:{
                     if( !is_moving_left ){
                         // Se déplace autre que à gauche
                         is_moving_right =true;
@@ -213,7 +228,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         is_moving_down = false;
                     }
                     break;
-                case VK_LEFT:
+                }
+                case VK_LEFT:{
                     if( !is_moving_right ){
                         is_moving_left =true;
                         is_moving_right = false;
@@ -221,7 +237,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         is_moving_down = false;
                     }
                     break;
-                case VK_UP:
+                }
+                case VK_UP:{
                     if( !is_moving_down ){
                         is_moving_up =true;
                         is_moving_left = false;
@@ -229,7 +246,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         is_moving_down = false;
                     }
                     break;
-                case VK_DOWN:
+                }
+                case VK_DOWN:{
                     if( !is_moving_up ){
                         is_moving_down =true;
                         is_moving_left = false;
@@ -237,16 +255,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         is_moving_up = false;
                     }
                     break;
-                case VK_ESCAPE:
-                    is_moving_right = false;
-                    is_moving_left = false;
-                    is_moving_up = false;
-                    is_moving_down = false;
+                }
+                case VK_ESCAPE:{
                     if( timer_set ){
                         KillTimer(hwnd, MOVE_TIMER_ID);
                         timer_set = false;
                     }
+
+                    // Marquer toute la fenêtre comme invalide pour déclencher un WM_PAINT
+                    InvalidateRect(hwnd, nullptr, TRUE);
+                    if( initialized ){
+                        REPAINT_NEEDED = WINDOW_RESIZED;
+                    }
                     break;
+                }  
                 default:
                     break;
             }
@@ -267,6 +289,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         InvalidateRect(hwnd, nullptr, TRUE);
                         REPAINT_NEEDED = INIT_GRID_RECT;
                     }else{
+                        SetTimer(hwnd, MOVE_TIMER_ID, SPEED_RECTANGLE, nullptr);
+                        timer_set = true;
                         InvalidateRect(hwnd, nullptr, TRUE);
                         REPAINT_NEEDED = CONTINUE_GAME;
                     }
@@ -425,10 +449,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             return 0;
         }
         case WM_SIZE:{
-            is_moving_right = false;
-            is_moving_left = false;
-            is_moving_up = false;
-            is_moving_down = false;
             if( timer_set ){
                 KillTimer(hwnd, MOVE_TIMER_ID);
                 timer_set = false;
