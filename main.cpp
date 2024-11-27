@@ -46,7 +46,7 @@ void playButtonStyle(DRAWITEMSTRUCT *const pdis);
 void updatePlayButtonPosition(HWND hwnd);
 void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor);
 void initRect(HDC hdc);
-void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor);
+void UpdateGrid(HDC hdc, RECT rectWindow, COLORREF gridColor);
 void updateSnake();
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -267,7 +267,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         InvalidateRect(hwnd, nullptr, TRUE);
                         REPAINT_NEEDED = INIT_GRID_RECT;
                     }else{
-                        
+                        InvalidateRect(hwnd, nullptr, TRUE);
+                        REPAINT_NEEDED = CONTINUE_GAME;
                     }
                 }
             }
@@ -392,8 +393,31 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 }
                 case CONTINUE_GAME:{
+                    RECT rectWindow;
+                    GetClientRect(hwnd, &rectWindow);
+                    // Il faut recentrer le bouton
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);
+
+                    // Remplissage du fond
+                    HBRUSH hbrush1 = CreateSolidBrush(RGB(50,50,50));
+                    FillRect(hdc, &rectWindow, hbrush1);
+                    DeleteObject(hbrush1);
+
+                    // Actualisation de la grille
+                    UpdateGrid(hdc, rectWindow ,RGB(255,255,255));
+                    updateSnake();
+
+                    HBRUSH hbrush2 = CreateSolidBrush(RGB(255,255,255));
+                    FillRect(hdc, &rect, hbrush2);
+
+                    for(int i =0; i<length_snake; i++){
+                        RECT rect_temp;
+                        rect_temp = snake_tail.at(i);
+                        FillRect(hdc, &rect_temp, hbrush2);
+                    }
+                    DeleteObject(hbrush2);
+
                     EndPaint(hwnd, &ps);
                     break;
                 }
@@ -467,34 +491,42 @@ void updateSnake(){
         snake_tail.at(i) = rect_temp;
     }
 }
-void UpdateGrid(HDC hdc, RECT rect, COLORREF gridColor){
+void UpdateGrid(HDC hdc, RECT rectWindow, COLORREF gridColor){
     // Fonction qui permet de mettre à jour la grille.
     // Définir la brosse pour dessiner les lignes
     HPEN hPen = CreatePen(PS_SOLID, 1, gridColor);
     HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 
     // Largeur et hauteur de la zone cliente
-    int clientWidth = rect.right - rect.left;
-    int clientHeight = rect.bottom - rect.top;
+    int clientWidth = rectWindow.right - rectWindow.left;
+    int clientHeight = rectWindow.bottom - rectWindow.top;
 
     // On calcule le cell width à partir du nombre de colonnes et de lignes
     cell_width = clientWidth/number_columns;
     cell_height = clientHeight/number_lines;
 
     // Calculer le décalage pour centrer la grille
-    offsetX = (clientWidth % cell_width) / 2;
-    offsetY = (clientHeight % cell_height) / 2;
+    if( clientWidth % cell_width == 0){
+        offsetX = 0;
+    }else{
+        offsetX = (clientWidth % cell_width) / 2;
+    }
+    if( clientHeight % cell_height == 0 ){
+        offsetY = 0;
+    }else{
+        offsetY = (clientHeight % cell_height) / 2;
+    }
 
     // Dessiner les lignes verticales
-    for (int x = rect.left + offsetX; x <= rect.right; x += cell_width) {
-        MoveToEx(hdc, x, rect.top, nullptr);
-        LineTo(hdc, x, rect.bottom);
+    for (int x = rectWindow.left + offsetX; x <= rectWindow.right; x += cell_width) {
+        MoveToEx(hdc, x, rectWindow.top, nullptr);
+        LineTo(hdc, x, rectWindow.bottom);
     }
 
     // Dessiner les lignes horizontales
-    for (int y = rect.top + offsetY; y <= rect.bottom; y += cell_height) {
-        MoveToEx(hdc, rect.left, y, nullptr);
-        LineTo(hdc, rect.right, y);
+    for (int y = rectWindow.top + offsetY; y <= rectWindow.bottom; y += cell_height) {
+        MoveToEx(hdc, rectWindow.left, y, nullptr);
+        LineTo(hdc, rectWindow.right, y);
     }
 
     // Restaurer la brosse précédente et nettoyer
