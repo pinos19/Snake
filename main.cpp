@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <iostream>
 #include <vector>
+#include "Snake.h"
 
 #define BUTTON_PLAY_ID 1
 #define MOVE_TIMER_ID 2
@@ -60,33 +61,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 int rectLineOld = rect_line.at(0);
 
                 if( is_moving_right ) {
-                    REPAINT_NEEDED = RECT_MOVING;
                     RECT rectOld = rect;
-                    InvalidateRect(hwnd, &rectOld, TRUE);
 
                     rect.left += cell_width;
                     rect.right += cell_width;
-                    InvalidateRect(hwnd, &rect, TRUE);
 
-                    if( rect.right > rectWindow.right ){
-                        // On dépasse à droite, on repasse à gauche
-                        rect = {offsetX+2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
-                        rect_column.at(0) = 1;
-                    }else{
-                        rect_column.at(0) +=1;
-                    }
-
-                    // On teste si tête n'est pas rentrée dans son propre corps
-                    for(int j = 1; j < length_snake-1; j++){
-                        if( rect_column.at(0) == rect_column.at(j) && rect_line.at(0) == rect_line.at(j) ){
-                            // Problème, on vient de se mordre la queue
-                            if( timer_set ){
-                                KillTimer(hwnd, MOVE_TIMER_ID);
-                                timer_set = false;
-                            }
-                            is_moving_right = false;
-                        }
-                    }
+                    InvalidateRect(hwnd, &rectOld, TRUE);
 
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
@@ -103,6 +83,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         rectOld = rect_temp;    
                         InvalidateRect(hwnd, &rect_temp, TRUE);
                     }
+
+                    if( rect.right > rectWindow.right ){
+                        // On dépasse à droite, on repasse à gauche
+                        rect = {offsetX+2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
+                        rect_column.at(0) = 1;
+                    }else{
+                        rect_column.at(0) +=1;
+                    }
+                    
+                    InvalidateRect(hwnd, &rect, TRUE);
+                    REPAINT_NEEDED = RECT_MOVING;
                 }
                 if( is_moving_left ){
                     RECT rectOld = rect;
@@ -478,6 +469,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     const wchar_t CLASS_NAME[] = L"WINDOW";
+
+    Snake sn;
 
     WNDCLASS wc = {};
     wc.lpfnWndProc = WindowProc;
