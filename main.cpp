@@ -31,7 +31,7 @@ boolean timer_set = false;
 boolean grid_set = false;
 boolean initialized = false;
 
-int length_snake = 5;
+int length_snake = 10;
 
 std::vector<RECT> snake_tail;
 
@@ -62,11 +62,31 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if( is_moving_right ) {
                     REPAINT_NEEDED = RECT_MOVING;
                     RECT rectOld = rect;
+                    InvalidateRect(hwnd, &rectOld, TRUE);
 
                     rect.left += cell_width;
                     rect.right += cell_width;
+                    InvalidateRect(hwnd, &rect, TRUE);
 
-                    InvalidateRect(hwnd, &rectOld, TRUE);
+                    if( rect.right > rectWindow.right ){
+                        // On dépasse à droite, on repasse à gauche
+                        rect = {offsetX+2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
+                        rect_column.at(0) = 1;
+                    }else{
+                        rect_column.at(0) +=1;
+                    }
+
+                    // On teste si tête n'est pas rentrée dans son propre corps
+                    for(int j = 1; j < length_snake-1; j++){
+                        if( rect_column.at(0) == rect_column.at(j) && rect_line.at(0) == rect_line.at(j) ){
+                            // Problème, on vient de se mordre la queue
+                            if( timer_set ){
+                                KillTimer(hwnd, MOVE_TIMER_ID);
+                                timer_set = false;
+                            }
+                            is_moving_right = false;
+                        }
+                    }
 
                     // On actualise la queue du serpent
                     for(int i =0; i<length_snake; i++){
@@ -83,15 +103,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         rectOld = rect_temp;    
                         InvalidateRect(hwnd, &rect_temp, TRUE);
                     }
-
-                    if( rect.right > rectWindow.right ){
-                        // On dépasse à droite, on repasse à gauche
-                        rect = {offsetX+2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
-                        rect_column.at(0) = 1;
-                    }else{
-                        rect_column.at(0) +=1;
-                    }
-                    InvalidateRect(hwnd, &rect, TRUE);
                 }
                 if( is_moving_left ){
                     RECT rectOld = rect;
