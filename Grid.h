@@ -36,6 +36,4 @@ class Grid{
         void setOffsetYTop(double offsetYTop);
         void setOffsetYBottom(double offsetYBottom);
 };
-
-
 #endif

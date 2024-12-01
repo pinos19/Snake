@@ -19,7 +19,7 @@ class Snake{
         void move(const Grid& grid);
         void grow();
         void shrink();
-        void init();
+        void init(const Grid& grid);
 
         // Getters
         double getSpeed() const;
@@ -37,9 +37,4 @@ class Snake{
         void setPreviousDirection(int previousDirection);
         void setSize(int size);
 };
-
-
-
-
-
 #endif
