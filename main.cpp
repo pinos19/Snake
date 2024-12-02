@@ -476,7 +476,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClass(&wc);
-
+    Snake sn;
+    
     HWND hwnd = CreateWindowEx(
         0,
         CLASS_NAME,

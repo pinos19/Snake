@@ -3,16 +3,16 @@
 
 // Constructeurs
 Snake::Snake()
-    :Speed{0},IndexColumn{},IndexRow{},CurrentDirection{0},PreviousDirection{0},Size{0}{}
-Snake::Snake(double speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size)
-    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, CurrentDirection{currentDirection}, PreviousDirection{previousDirection}, Size{size}{}
+    :Speed{0},IndexColumn{},IndexRow{},CurrentDirection{0},PreviousDirection{0},Size{0},SnakeRect{}{}
+Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size, std::vector<RECT> snakeRect)
+    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, CurrentDirection{currentDirection}, PreviousDirection{previousDirection}, Size{size}, SnakeRect{snakeRect}{}
 
 // Méthodes de la classe
 void Snake::move(const Grid& grid){
     // Fonction qui permet de déplacer le serpent avec la valeur de déplacement actuelle
     int columnOld = IndexColumn.at(0);
     int rowOld = IndexRow.at(0);
-    int columnTemp,rowTemp, i;
+    int columnTemp, rowTemp, i;
 
     // On actualise la tête du serpent
     switch(CurrentDirection){
@@ -84,17 +84,15 @@ void Snake::init(const Grid& grid){
     Speed = 100;
     IndexColumn.erase(IndexColumn.begin(),IndexColumn.begin()+Size);
     IndexRow.erase(IndexRow.begin(),IndexRow.begin()+Size);
-    double row = static_cast<double> (grid.getNumberLines()/2);
-    double column = static_cast<double> (grid.getNumberColumns()/2);
-    IndexColumn.push_back(ceil(column));
-    IndexRow.push_back(ceil(row));
+    IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
+    IndexRow.push_back(ceil(static_cast<double> (grid.getNumberLines()/2)));
     CurrentDirection = 2;
     PreviousDirection = 2;
     Size = 1;
 }
 
 // Getters
-double Snake::getSpeed() const {
+int Snake::getSpeed() const {
     return Speed;
 }
 const std::vector<int>& Snake::getIndexColumn() const {
@@ -112,9 +110,12 @@ int Snake::getPreviousDirection() const {
 int Snake::getSize() const {
     return Size;
 }
+const std::vector<RECT>& Snake::getSnakeRect() const {
+    return SnakeRect;
+}
 
 // Setters
-void Snake::setSpeed(double speed) {
+void Snake::setSpeed(int speed) {
     Speed = speed;
 }
 void Snake::setIndexColumn(const std::vector<int>& indexColumn) {
@@ -131,4 +132,7 @@ void Snake::setPreviousDirection(int previousDirection) {
 }
 void Snake::setSize(int size) {
     Size = size;
+}
+void Snake::setSnakeRect(const std::vector<RECT>& snakeRect){
+    SnakeRect = snakeRect;
 }

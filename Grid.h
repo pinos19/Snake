@@ -2,38 +2,47 @@
 #define _GRID_H_
 
 #include <iostream>
+#include <cmath>
 
 class Grid{
     private:
-        double RatioCell;
-        double NumberLines;
-        double NumberColumns;
-        double OffsetXLeft;
-        double OffsetXRight;
-        double OffsetYTop;
-        double OffsetYBottom;
+        int RatioCell;
+        int CellWidth;
+        int CellHeight;
+        int NumberLines;
+        int NumberColumns;
+        int OffsetXLeft;
+        int OffsetXRight;
+        int OffsetYTop;
+        int OffsetYBottom;
     public:
         Grid();
-        Grid(double ratioCell,double numberLines,double numberColumns,double offsetXLeft,double offsetXRight,double offsetYTop,double offsetYBottom);
+        Grid(int ratioCell,int numberLines,int numberColumns,int offsetXLeft,int offsetXRight,int offsetYTop,int offsetYBottom);
 
+        // Méthodes de la classe
         void windowChanged(int widthWindow, int heightWindow);
+        void init(int widthWindow, int heightWindow);
 
         // Getters
-        double getRatioCell() const;
-        double getNumberLines() const;
-        double getNumberColumns() const;
-        double getOffsetXLeft() const;
-        double getOffsetXRight() const;
-        double getOffsetYTop() const;
-        double getOffsetYBottom() const;
+        int getRatioCell() const;
+        int getNumberLines() const;
+        int getNumberColumns() const;
+        int getOffsetXLeft() const;
+        int getOffsetXRight() const;
+        int getOffsetYTop() const;
+        int getOffsetYBottom() const;
+        int getCellWidth() const;
+        int getCellHeight() const;
 
         // Setters
-        void setRatioCell(double ratioCell);
-        void setNumberLines(double numberLines);
-        void setNumberColumns(double numberColumns);
-        void setOffsetXLeft(double offsetXLeft);
-        void setOffsetXRight(double offsetXRight);
-        void setOffsetYTop(double offsetYTop);
-        void setOffsetYBottom(double offsetYBottom);
+        void setRatioCell(int ratioCell);
+        void setNumberLines(int numberLines);
+        void setNumberColumns(int numberColumns);
+        void setOffsetXLeft(int offsetXLeft);
+        void setOffsetXRight(int offsetXRight);
+        void setOffsetYTop(int offsetYTop);
+        void setOffsetYBottom(int offsetYBottom);
+        void setCellWidth(int cellWidth);
+        void setCellHeight(int cellHeight);
 };
 #endif
