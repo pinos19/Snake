@@ -13,6 +13,8 @@ void Snake::move(const Grid& grid){
     int columnOld = IndexColumn.at(0);
     int rowOld = IndexRow.at(0);
     int columnTemp, rowTemp, i;
+    RECT rectOld = SnakeRect.at(0);
+    RECT rectTemp;
 
     // On actualise la tête du serpent
     switch(CurrentDirection){
@@ -57,26 +59,34 @@ void Snake::move(const Grid& grid){
             }
         }
     }
+    // On actualise le rectangle de la tête 
+    SnakeRect.at(0) = {grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+3, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+3, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1};
+
     // On actualise la queue du serpent
     for(i=1; i<Size; i++){
         columnTemp = IndexColumn.at(i);
         rowTemp = IndexRow.at(i);
+        rectTemp = SnakeRect.at(i);
         IndexColumn.at(i) = columnOld;
         IndexRow.at(i) = rowOld;
+        SnakeRect.at(i) = rectOld;
         columnOld = columnTemp;
         rowOld = rowTemp;
+        rectOld = rectTemp;
     }
 }
 void Snake::grow(){
     // Fonction qui permet de faire grandir le serpent de 1
     IndexColumn.push_back(IndexColumn.at(Size-1));
     IndexRow.push_back(IndexRow.at(Size-1));
+    SnakeRect.push_back(SnakeRect.back());
     Size += 1;
 }
 void Snake::shrink(){
     // Fonction qui permet de diminuer le serpent de 1
     IndexColumn.pop_back();
     IndexRow.pop_back();
+    SnakeRect.pop_back();
     Size-=1;
 }
 void Snake::init(const Grid& grid){
@@ -86,6 +96,8 @@ void Snake::init(const Grid& grid){
     IndexRow.erase(IndexRow.begin(),IndexRow.begin()+Size);
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
     IndexRow.push_back(ceil(static_cast<double> (grid.getNumberLines()/2)));
+    SnakeRect.erase(SnakeRect.begin(),SnakeRect.begin()+Size);
+    SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+3, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+3, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
     CurrentDirection = 2;
     PreviousDirection = 2;
     Size = 1;
