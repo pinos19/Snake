@@ -5,6 +5,7 @@
 #include "Grid.h"
 #include "Snake.h"
 #include <windows.h>
+#include <vector>
 
 class Game{
     private:

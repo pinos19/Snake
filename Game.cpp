@@ -73,8 +73,12 @@ void Game::drawGrid(const Grid& grid, HDC& hdc, const COLORREF colorGrid) {
 void Game::drawSnake(const Snake& snake, HDC& hdc, const COLORREF colorSnake) {
     // Code pour dessiner le serpent
 
-
-    
+    HBRUSH hbrush = CreateSolidBrush(colorSnake);
+    std::vector<RECT> snakeRectangle = snake.getSnakeRect();
+    for(int i = 0; i < snake.getSize()-1; i++){
+        FillRect(hdc, &snakeRectangle.at(i), hbrush);
+    }
+    DeleteObject(hbrush);
 }
 void Game::windowChanged(Snake& snake, Grid& grid, int widthWindow, int heightWindow, HDC& hdc, const COLORREF colorSnake, const COLORREF colorGrid) {
     // Code pour gérer les changements de fenêtre
