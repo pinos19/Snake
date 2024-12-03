@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Grid.h"
 #include "Snake.h"
+#include <windows.h>
 
 class Game{
     private:
