@@ -1,54 +1,14 @@
 #include <windows.h>
-#include <iostream>
-#include <vector>
 #include "Snake.h"
+#include "Grid.h"
+#include "Game.h"
+#include "hmi_functions.h"
 
 #define BUTTON_PLAY_ID 1
 #define MOVE_TIMER_ID 2
-#define SPEED_RECTANGLE 100
-#define RATIO_SNAKE 60
 
-#define INIT_GRID_RECT 1
-#define INIT_APP 0
-#define RECT_MOVING 2
 #define WINDOW_RESIZED 3
-#define CONTINUE_GAME 4
-
-int number_lines;
-int number_columns;
-std::vector<int> rect_column;
-std::vector<int> rect_line;
-
-int cell_width;
-int cell_height;
-int offsetX;
-int offsetY;
-
-boolean is_moving_right = false;
-boolean is_moving_up = false;
-boolean is_moving_left = false;
-boolean is_moving_down = false;
-boolean timer_set = false;
-boolean grid_set = false;
-boolean initialized = false;
-
-int length_snake = 10;
-
-std::vector<RECT> snake_tail;
-
-RECT rect;
-
-// Variables FLAGS
-int REPAINT_NEEDED = INIT_APP;
-
-
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow);
-void playButtonStyle(DRAWITEMSTRUCT *const pdis);
-void updatePlayButtonPosition(HWND hwnd);
-void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor);
-void initRect(HDC hdc);
-void UpdateGrid(HDC hdc, RECT rectWindow, COLORREF gridColor);
-void updateSnake();
+#define INIT_GRID_RECT 4
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -287,9 +247,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
                 if( hButton ){
                     DestroyWindow(hButton);
-                    if( !grid_set ){
+                    if( !Game::getGridSet() ){
                         InvalidateRect(hwnd, nullptr, TRUE);
-                        REPAINT_NEEDED = INIT_GRID_RECT;
+                        Game::setPaintFlag(INIT_GRID_RECT);
                     }else{
                         SetTimer(hwnd, MOVE_TIMER_ID, SPEED_RECTANGLE, nullptr);
                         timer_set = true;
@@ -320,7 +280,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             int width = rect.right - rect.left;
             int height = rect.bottom - rect.top;
 
-            createPlayButton(hwnd, width, height);
+            createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
             return 0;
         }
         case WM_DESTROY:
@@ -451,15 +411,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             return 0;
         }
         case WM_SIZE:{
-            if( timer_set ){
+            if( Game::getPlay() ){
                 KillTimer(hwnd, MOVE_TIMER_ID);
-                timer_set = false;
+                Game::setPlay(false);
             }
 
             // Marquer toute la fenêtre comme invalide pour déclencher un WM_PAINT
             InvalidateRect(hwnd, nullptr, TRUE);
-            if( initialized ){
-                REPAINT_NEEDED = WINDOW_RESIZED;
+            if( Game::getInitialized() ){
+                Game::setPaintFlag(WINDOW_RESIZED);
             }
             return 0;
         }
@@ -469,6 +429,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     const wchar_t CLASS_NAME[] = L"WINDOW";
+    Snake snake;
+    Grid grid;
     
     WNDCLASS wc = {};
     wc.lpfnWndProc = WindowProc;
@@ -476,8 +438,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClass(&wc);
-    Snake sn;
-    
+
     HWND hwnd = CreateWindowEx(
         0,
         CLASS_NAME,
@@ -488,9 +449,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     );
 
     if (!hwnd) return 0;
-
     ShowWindow(hwnd, nCmdShow);
-    initialized = true;
+    Game::setInitialized(true);
+
 
     MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0)) {
@@ -499,192 +460,4 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     }
 
     return 0;
-}
-
-void updateSnake(){
-    // Fonction qui met à jour les dimensions des rectangles du serpent
-
-    // On met à jour la tête du serpent
-    rect = {offsetX + (rect_column.at(0)-1)*cell_width +2, offsetY + (rect_line.at(0)-1)*cell_height+2, offsetX + rect_column.at(0)*cell_width -1, offsetY + rect_line.at(0)*cell_height - 1};
-
-    // Il faut mettre à jour le corps du serpent
-    for(int i = 0; i <length_snake; i++){
-        RECT rect_temp;
-        rect_temp = {offsetX + (rect_column.at(i+1)-1)*cell_width +2, offsetY + (rect_line.at(i+1)-1)*cell_height+2, offsetX + rect_column.at(i+1)*cell_width -1, offsetY + rect_line.at(i+1)*cell_height - 1};
-        snake_tail.at(i) = rect_temp;
-    }
-}
-void UpdateGrid(HDC hdc, RECT rectWindow, COLORREF gridColor){
-    // Fonction qui permet de mettre à jour la grille.
-    // Définir la brosse pour dessiner les lignes
-    HPEN hPen = CreatePen(PS_SOLID, 1, gridColor);
-    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-    // Largeur et hauteur de la zone cliente
-    int clientWidth = rectWindow.right - rectWindow.left;
-    int clientHeight = rectWindow.bottom - rectWindow.top;
-
-    // On calcule le cell width à partir du nombre de colonnes et de lignes
-    cell_width = clientWidth/number_columns;
-    cell_height = clientHeight/number_lines;
-
-    // Calculer le décalage pour centrer la grille
-    if( clientWidth % cell_width == 0){
-        offsetX = 0;
-    }else{
-        offsetX = (clientWidth % cell_width) / 2;
-    }
-    if( clientHeight % cell_height == 0 ){
-        offsetY = 0;
-    }else{
-        offsetY = (clientHeight % cell_height) / 2;
-    }
-
-    // Dessiner les lignes verticales
-    for (int x = rectWindow.left + offsetX; x <= rectWindow.right; x += cell_width) {
-        MoveToEx(hdc, x, rectWindow.top, nullptr);
-        LineTo(hdc, x, rectWindow.bottom);
-    }
-
-    // Dessiner les lignes horizontales
-    for (int y = rectWindow.top + offsetY; y <= rectWindow.bottom; y += cell_height) {
-        MoveToEx(hdc, rectWindow.left, y, nullptr);
-        LineTo(hdc, rectWindow.right, y);
-    }
-
-    // Restaurer la brosse précédente et nettoyer
-    SelectObject(hdc, hOldPen);
-    DeleteObject(hPen);
-}
-void initRect(HDC hdc){ 
-    int n_lines = number_lines/2;
-    int n_columns = number_columns/2;
-
-    rect_column.push_back(n_columns);
-    rect_line.push_back(n_lines);
-
-    rect = {offsetX + (n_columns-1)*cell_width +2, offsetY + (n_lines-1)*cell_height+2, offsetX + n_columns*cell_width -1, offsetY + n_lines*cell_height - 1};
-    for(int i = 0; i< length_snake; i++){
-        snake_tail.push_back(rect);
-        rect_column.push_back(n_columns);
-        rect_line.push_back(n_lines);
-    }
-
-    HBRUSH hBrush = CreateSolidBrush(RGB(255,255,255));
-    FillRect(hdc, &rect, hBrush);
-    DeleteObject(hBrush);
-}
-void DrawGrid(HDC hdc, RECT rect, COLORREF gridColor) {
-    // Définir la brosse pour dessiner les lignes
-    HPEN hPen = CreatePen(PS_SOLID, 1, gridColor);
-    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-    // Largeur et hauteur de la zone cliente
-    int clientWidth = rect.right - rect.left;
-    int clientHeight = rect.bottom - rect.top;
-
-    cell_width = std::max(clientWidth, clientHeight)/RATIO_SNAKE;
-    cell_height = cell_width;
-    number_lines = clientHeight/cell_width;
-    number_columns = clientWidth/cell_width;
-
-    // Calculer le décalage pour centrer la grille
-    offsetX = (clientWidth % cell_width) / 2;
-    offsetY = (clientHeight % cell_width) / 2;
-
-    // Dessiner les lignes verticales
-    for (int x = rect.left + offsetX; x <= rect.right; x += cell_width) {
-        MoveToEx(hdc, x, rect.top, nullptr);
-        LineTo(hdc, x, rect.bottom);
-    }
-
-    // Dessiner les lignes horizontales
-    for (int y = rect.top + offsetY; y <= rect.bottom; y += cell_width) {
-        MoveToEx(hdc, rect.left, y, nullptr);
-        LineTo(hdc, rect.right, y);
-    }
-
-    // Restaurer la brosse précédente et nettoyer
-    SelectObject(hdc, hOldPen);
-    DeleteObject(hPen);
-
-    // On met la grille en true
-    grid_set = true;
-}
-void updatePlayButtonPosition(HWND hwnd){
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-
-    int widthWindow = rect.right - rect.left;
-    int heightWindow = rect.bottom - rect.top;
-
-    int widthButton = widthWindow/14.24;
-    int heightButton = heightWindow/14.12;
-
-    int xStartingPoint = (widthWindow - widthButton)/2;
-    int yStartingPoint = (heightWindow - heightButton)/2;
-
-    HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
-    if( hButton ){
-        SetWindowPos(hButton, nullptr, xStartingPoint, yStartingPoint, widthButton, heightButton, SWP_NOZORDER);
-    }   
-}
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow){
-    int widthButton = widthWindow/14.24;
-    int heightButton = heightWindow/14.12;
-
-    int xStartingPoint = (widthWindow - widthButton)/2;
-    int yStartingPoint = (heightWindow - heightButton)/2;
-
-    CreateWindow(
-        L"BUTTON", L"Jouer",
-        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_OWNERDRAW,
-        xStartingPoint, yStartingPoint, widthButton, heightButton,
-        hwnd, (HMENU)BUTTON_PLAY_ID,
-        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-        nullptr);
-}
-void playButtonStyle(DRAWITEMSTRUCT *const pdis){
-    // Fonction qui donne le style pour le bouton Jouer
-
-    HDC hdc = pdis->hDC;
-    RECT rect = pdis->rcItem;
-
-    boolean isPressed = (pdis->itemState & ODS_SELECTED);
-
-    COLORREF backgroundPressed = RGB(0,0,0);
-    COLORREF backgroundNotPressed = RGB(150,150,150);
-    COLORREF textPressed = RGB(150,150,150);
-    COLORREF texNotPressed = RGB(0,0,0);
-
-    HBRUSH hbrush;
-
-    // Création de la police
-    HFONT hFont = CreateFont(
-        20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, // Taille et style
-        ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, L"Arial"); // Famille "Arial"
-
-    if( isPressed ){
-        // Le bouton est sélectionné
-        hbrush = CreateSolidBrush(backgroundPressed);
-        SetTextColor(hdc, textPressed);
-    }else{
-        // Le bouton n'est pas sélectionné
-        hbrush = CreateSolidBrush(backgroundNotPressed);
-        SetTextColor(hdc, texNotPressed);
-    }
-    FillRect(hdc, &rect, hbrush);
-    DeleteObject(hbrush);
-
-    // Mettre le fond transparent pour le texte
-    SetBkMode(hdc, TRANSPARENT);
-
-    HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
-
-    DrawText(hdc, L"Jouer", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
-    // Restaurer la police d'origine
-    SelectObject(hdc, hOldFont);
-    DeleteObject(hFont);
 }

@@ -5,6 +5,7 @@ bool Game::Initialized = false;
 int Game::PaintFlag = 0;
 int Game::Score = 0;
 bool Game::Play = false;
+bool Game::GridSet = false;
 
 // Implémentation des getters et setters
 
@@ -21,6 +22,9 @@ int Game::getScore() {
 bool Game::getPlay() {
     return Play;
 }
+bool Game::getGridSet() {
+    return GridSet;
+}
 
 // Setters
 void Game::setInitialized(bool initialized) {
@@ -35,9 +39,12 @@ void Game::setScore(int score) {
 void Game::setPlay(bool play) {
     Play = play;
 }
+void Game::setGridSet(bool gridSet) {
+    GridSet = gridSet;
+}
 
 // Implémentation des méthodes
-void Game::clearFigure(const RECT& rectWindow, HDC& hdc, const COLORREF colorBackground){
+void Game::clearFigure(const RECT& rectWindow, HDC hdc, const COLORREF colorBackground){
     HBRUSH hbrush = CreateSolidBrush(colorBackground);
     FillRect(hdc, &rectWindow, hbrush);
     DeleteObject(hbrush);
@@ -49,7 +56,7 @@ void Game::init() {
     Score = 0;
     Play = false;
 }
-void Game::drawGrid(const Grid& grid, HDC& hdc, const COLORREF colorGrid) {
+void Game::drawGrid(const Grid& grid, HDC hdc, const COLORREF colorGrid) {
     // Code pour dessiner la grille
     int x, y;
     int lastColumn = grid.getCellWidth()*grid.getNumberColumns()+grid.getNumberColumns()+1+grid.getOffsetXLeft();
@@ -75,7 +82,7 @@ void Game::drawGrid(const Grid& grid, HDC& hdc, const COLORREF colorGrid) {
     SelectObject(hdc, hOldPen);
     DeleteObject(hPen);
 }
-void Game::drawSnake(const Snake& snake, HDC& hdc, const COLORREF colorSnake) {
+void Game::drawSnake(const Snake& snake, HDC hdc, const COLORREF colorSnake) {
     // Code pour dessiner le serpent
 
     HBRUSH hbrush = CreateSolidBrush(colorSnake);
@@ -85,7 +92,7 @@ void Game::drawSnake(const Snake& snake, HDC& hdc, const COLORREF colorSnake) {
     }
     DeleteObject(hbrush);
 }
-void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC& hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground) {
+void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground) {
     // Code pour gérer les changements de fenêtre
 
     // Nettoyage de la figure
@@ -101,7 +108,7 @@ void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC& h
     snake.gridChanged(grid);
     drawSnake(snake, hdc, colorSnake);
 }
-void Game::updateSnake(const RECT& rectOld, const RECT& newRect, HDC& hdc, const COLORREF colorSnake, const COLORREF colorBackground) {
+void Game::updateSnake(const RECT& rectOld, const RECT& newRect, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground) {
     // Code pour mettre à jour le serpent, uniquement après un déplacement
 
     HBRUSH hbrushBack = CreateSolidBrush(colorBackground);
