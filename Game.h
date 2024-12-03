@@ -29,9 +29,10 @@ class Game{
 
         // Méthodes
         void init();
+        void clearFigure(const RECT& rectWindow, HDC& hdc, const COLORREF colorBackground);
         void drawGrid(const Grid& grid, HDC& hdc, const COLORREF colorGrid);
         void drawSnake(const Snake& snake, HDC& hdc, const COLORREF colorSnake);
-        void windowChanged(Snake& snake, Grid& grid, int widthWindow, int heightWindow, HDC& hdc, const COLORREF colorSnake, const COLORREF colorGrid);
-        void updateSnake(const RECT& rectOld, const RECT& newRect, HDC& hdc, const COLORREF colorSnake);
+        void windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC& hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground);
+        void updateSnake(const RECT& rectOld, const RECT& newRect, HDC& hdc, const COLORREF colorSnake, const COLORREF colorBackground);
 };
 #endif

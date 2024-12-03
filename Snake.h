@@ -23,6 +23,7 @@ class Snake{
         void grow();
         void shrink();
         void init(const Grid& grid);
+        void gridChanged(const Grid& grid);
 
         // Getters
         int getSpeed() const;

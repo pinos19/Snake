@@ -102,6 +102,13 @@ void Snake::init(const Grid& grid){
     PreviousDirection = 2;
     Size = 1;
 }
+void Snake::gridChanged(const Grid& grid){
+    // Fonction qui actualise le serpent lorsque la grille change
+
+    for(int i = 0; i <Size-1; i++){
+        SnakeRect.at(i) = {grid.getOffsetXLeft()+(IndexColumn.at(i)-1)*(grid.getCellWidth()+1)+3, grid.getOffsetYTop() + (IndexRow.at(i)-1)*(grid.getCellHeight()+1)+3, grid.getOffsetXLeft() + IndexColumn.at(i)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(i)*(grid.getCellHeight()+1)-1};
+    }
+}
 
 // Getters
 int Snake::getSpeed() const {

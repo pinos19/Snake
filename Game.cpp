@@ -37,6 +37,11 @@ void Game::setPlay(bool play) {
 }
 
 // Implémentation des méthodes
+void Game::clearFigure(const RECT& rectWindow, HDC& hdc, const COLORREF colorBackground){
+    HBRUSH hbrush = CreateSolidBrush(colorBackground);
+    FillRect(hdc, &rectWindow, hbrush);
+    DeleteObject(hbrush);
+}
 void Game::init() {
     // Initialisation du jeu
     Initialized = false;
@@ -80,9 +85,31 @@ void Game::drawSnake(const Snake& snake, HDC& hdc, const COLORREF colorSnake) {
     }
     DeleteObject(hbrush);
 }
-void Game::windowChanged(Snake& snake, Grid& grid, int widthWindow, int heightWindow, HDC& hdc, const COLORREF colorSnake, const COLORREF colorGrid) {
+void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC& hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground) {
     // Code pour gérer les changements de fenêtre
+
+    // Nettoyage de la figure
+    clearFigure(newWindow, hdc, colorBackground);
+
+    // Actualisation de la grille et affichage
+    int widthWindow = newWindow.right - newWindow.left;
+    int heightWindow = newWindow.bottom - newWindow.top;
+    grid.windowChanged(widthWindow, heightWindow);
+    drawGrid(grid, hdc, colorGrid);
+
+    // Actualisation serpent et affichage
+    snake.gridChanged(grid);
+    drawSnake(snake, hdc, colorSnake);
 }
-void Game::updateSnake(const RECT& rectOld, const RECT& newRect, HDC& hdc, const COLORREF colorSnake) {
-    // Code pour mettre à jour le serpent
+void Game::updateSnake(const RECT& rectOld, const RECT& newRect, HDC& hdc, const COLORREF colorSnake, const COLORREF colorBackground) {
+    // Code pour mettre à jour le serpent, uniquement après un déplacement
+
+    HBRUSH hbrushBack = CreateSolidBrush(colorBackground);
+    HBRUSH hbrushSnake = CreateSolidBrush(colorSnake);
+
+    FillRect(hdc, &rectOld, hbrushBack);
+    FillRect(hdc, &newRect, hbrushSnake);
+
+    DeleteObject(hbrushBack);
+    DeleteObject(hbrushSnake);
 }
