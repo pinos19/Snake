@@ -8,7 +8,7 @@
                 "-municode",
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}", "${fileDirname}\\Snake.cpp", "${fileDirname}\\Grid.cpp",
+                "${file}", "${fileDirname}\\Snake.cpp", "${fileDirname}\\Grid.cpp","${fileDirname}\\Game.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "-lgdi32"
