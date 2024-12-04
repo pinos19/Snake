@@ -3,7 +3,7 @@
 
 #include <windows.h>
 
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton);
+void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, uintptr_t idButton);
 void updatePlayButtonPosition(HWND hwnd, int idButton);
 void playButtonStyle(DRAWITEMSTRUCT *const pdis);
 

@@ -18,7 +18,7 @@ void updatePlayButtonPosition(HWND hwnd, int idButton){
         SetWindowPos(hButton, nullptr, xStartingPoint, yStartingPoint, widthButton, heightButton, SWP_NOZORDER);
     }   
 }
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton){
+void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, uintptr_t idButton){
     int widthButton = widthWindow/14.24;
     int heightButton = heightWindow/14.12;
 
@@ -29,7 +29,7 @@ void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton
         L"BUTTON", L"Jouer",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_OWNERDRAW,
         xStartingPoint, yStartingPoint, widthButton, heightButton,
-        hwnd, (HMENU)idButton,
+        hwnd,(HMENU)idButton,
         (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
         nullptr);
 }

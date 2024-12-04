@@ -87,7 +87,7 @@ void Game::drawSnake(const Snake& snake, HDC hdc, const COLORREF colorSnake) {
 
     HBRUSH hbrush = CreateSolidBrush(colorSnake);
     std::vector<RECT> snakeRectangle = snake.getSnakeRect();
-    for(int i = 0; i < snake.getSize()-1; i++){
+    for(int i = 0; i <snake.getSize(); i++){
         FillRect(hdc, &snakeRectangle.at(i), hbrush);
     }
     DeleteObject(hbrush);
