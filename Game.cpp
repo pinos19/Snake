@@ -67,14 +67,14 @@ void Game::drawGrid(const Grid& grid, HDC hdc, const COLORREF colorGrid) {
     HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 
     // Dessiner les lignes verticales
-    for (x = grid.getOffsetXLeft() + 1; x <= lastColumn; x += grid.getCellWidth()+1) {
-        MoveToEx(hdc, x, grid.getOffsetYTop()+1, nullptr);
+    for (x = grid.getOffsetXLeft(); x <= lastColumn; x += grid.getCellWidth()+1) {
+        MoveToEx(hdc, x, grid.getOffsetYTop(), nullptr);
         LineTo(hdc, x, lastRow);
     }
 
     // Dessiner les lignes horizontales
-    for (y = grid.getOffsetYTop() + 1; y <= lastRow; y += grid.getCellHeight()+1) {
-        MoveToEx(hdc, grid.getOffsetXLeft()+1, y, nullptr);
+    for (y = grid.getOffsetYTop(); y <= lastRow; y += grid.getCellHeight()+1) {
+        MoveToEx(hdc, grid.getOffsetXLeft(), y, nullptr);
         LineTo(hdc, lastColumn, y);
     }
 

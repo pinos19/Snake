@@ -97,7 +97,7 @@ void Snake::init(const Grid& grid){
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
     IndexRow.push_back(ceil(static_cast<double> (grid.getNumberLines()/2)));
     SnakeRect.erase(SnakeRect.begin(),SnakeRect.begin()+Size);
-    SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+3, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+3, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
+    SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
     CurrentDirection = 2;
     PreviousDirection = 2;
     Size = 1;
@@ -106,7 +106,7 @@ void Snake::gridChanged(const Grid& grid){
     // Fonction qui actualise le serpent lorsque la grille change
 
     for(int i = 0; i <Size; i++){
-        SnakeRect.at(i) = {grid.getOffsetXLeft()+(IndexColumn.at(i)-1)*(grid.getCellWidth()+1)+3, grid.getOffsetYTop() + (IndexRow.at(i)-1)*(grid.getCellHeight()+1)+3, grid.getOffsetXLeft() + IndexColumn.at(i)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(i)*(grid.getCellHeight()+1)-1};
+        SnakeRect.at(i) = {grid.getOffsetXLeft()+(IndexColumn.at(i)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(i)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(i)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(i)*(grid.getCellHeight()+1)-1};
     }
 }
 

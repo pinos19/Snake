@@ -45,9 +45,9 @@ void Grid::init(int widthWindow, int heightWindow){
 
     // Calculer le décalage pour centrer la grille
     OffsetXLeft = offsetX/2;
-    OffsetXRight = ceil(static_cast<double> (offsetX/2));
+    OffsetXRight = ceil(static_cast<double> (offsetX)/2);
     OffsetYTop = offsetY/2;
-    OffsetYBottom = ceil(static_cast<double> (offsetY/2));
+    OffsetYBottom = ceil(static_cast<double> (offsetY)/2);
 }
 
 // Getters
