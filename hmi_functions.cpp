@@ -18,7 +18,7 @@ void updatePlayButtonPosition(HWND hwnd, int idButton){
         SetWindowPos(hButton, nullptr, xStartingPoint, yStartingPoint, widthButton, heightButton, SWP_NOZORDER);
     }   
 }
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, uintptr_t idButton){
+void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton){
     int widthButton = widthWindow/14.24;
     int heightButton = heightWindow/14.12;
 
