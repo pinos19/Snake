@@ -3,9 +3,9 @@
 
 // Constructeurs
 Grid::Grid()
-    :RatioCell{0},NumberLines{0},NumberColumns{0},OffsetXLeft{0},OffsetXRight{0},OffsetYTop{0},OffsetYBottom{0}{}
-Grid::Grid(int ratioCell,int numberLines,int numberColumns,int offsetXLeft,int offsetXRight,int offsetYTop,int offsetYBottom)
-    :RatioCell{ratioCell},NumberLines{numberLines},NumberColumns{numberColumns},OffsetXLeft{offsetXLeft},OffsetXRight{offsetXRight},OffsetYTop{offsetYTop},OffsetYBottom{offsetYBottom}{}
+    :RatioCell{0},NumberLines{0},NumberColumns{0},OffsetXLeft{0},OffsetXRight{0},OffsetYTop{0},OffsetYBottom{0}, GridColor{RGB(255,255,255)}{}
+Grid::Grid(int ratioCell,int numberLines,int numberColumns,int offsetXLeft,int offsetXRight,int offsetYTop,int offsetYBottom, COLORREF gridColor)
+    :RatioCell{ratioCell},NumberLines{numberLines},NumberColumns{numberColumns},OffsetXLeft{offsetXLeft},OffsetXRight{offsetXRight},OffsetYTop{offsetYTop},OffsetYBottom{offsetYBottom}, GridColor{gridColor}{}
 
 // Méthodes de la classe
 void Grid::windowChanged(int widthWindow, int heightWindow){
@@ -48,6 +48,9 @@ void Grid::init(int widthWindow, int heightWindow){
     OffsetXRight = ceil(static_cast<double> (offsetX)/2);
     OffsetYTop = offsetY/2;
     OffsetYBottom = ceil(static_cast<double> (offsetY)/2);
+
+    // Couleur grille
+    GridColor = RGB(255,255,255);
 }
 
 // Getters
@@ -78,6 +81,9 @@ int Grid::getCellWidth() const{
 int Grid::getCellHeight() const{
     return CellHeight;
 }
+COLORREF Grid::getGridColor() const{
+    return GridColor;
+}
 
 // Setters
 void Grid::setRatioCell(int ratioCell){
@@ -106,4 +112,7 @@ void Grid::setCellWidth(int cellWidth){
 }
 void Grid::setCellHeight(int cellHeight){
     CellHeight = cellHeight;
+}
+void Grid::setGridColor(COLORREF gridColor){
+    GridColor = gridColor;
 }

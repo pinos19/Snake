@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <windows.h>
 
 class Grid{
     private:
@@ -15,9 +16,10 @@ class Grid{
         int OffsetXRight;
         int OffsetYTop;
         int OffsetYBottom;
+        COLORREF GridColor;
     public:
         Grid();
-        Grid(int ratioCell,int numberLines,int numberColumns,int offsetXLeft,int offsetXRight,int offsetYTop,int offsetYBottom);
+        Grid(int ratioCell,int numberLines,int numberColumns,int offsetXLeft,int offsetXRight,int offsetYTop,int offsetYBottom, COLORREF gridColor);
 
         // Méthodes de la classe
         void windowChanged(int widthWindow, int heightWindow);
@@ -33,6 +35,7 @@ class Grid{
         int getOffsetYBottom() const;
         int getCellWidth() const;
         int getCellHeight() const;
+        COLORREF getGridColor() const;
 
         // Setters
         void setRatioCell(int ratioCell);
@@ -44,5 +47,6 @@ class Grid{
         void setOffsetYBottom(int offsetYBottom);
         void setCellWidth(int cellWidth);
         void setCellHeight(int cellHeight);
+        void setGridColor(COLORREF gridColor);
 };
 #endif

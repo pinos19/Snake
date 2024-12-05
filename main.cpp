@@ -168,7 +168,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     RECT rectWindow;
                     GetClientRect(hwnd, &rectWindow);
 
-                    Game::clearFigure(rectWindow, hdc, RGB(50,50,50));
+                    Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
 
                     EndPaint(hwnd, &ps);
                     break;
@@ -183,9 +183,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     GetClientRect(hwnd, &rectWindow);
 
                     // Dessin de la grille
-                    Game::clearFigure(rectWindow, hdc, RGB(50,50,50));
-                    Game::drawGrid(*windowData->grid, hdc, RGB(255,255,255));
-                    Game::drawSnake(*windowData->snake, hdc, RGB(255,255,255));
+                    Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
+                    Game::drawGrid(*windowData->grid, hdc, windowData->grid->getGridColor());
+                    Game::drawSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor());
 
                     EndPaint(hwnd, &ps);
                     break;
@@ -194,15 +194,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);
 
-
-
-                    // HBRUSH hbrush1 = CreateSolidBrush(RGB(50,50,50));
-                    // FillRect(hdc, &snake_tail.at(length_snake-1), hbrush1);
-                    // DeleteObject(hbrush1);
-
-                    // HBRUSH hbrush2 = CreateSolidBrush(RGB(255,255,255));
-                    // FillRect(hdc, &rect, hbrush2);
-                    // DeleteObject(hbrush2);
+                    // Actualisation de l'affichage
+                    Game::updateSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor(), Game::getBackgroundColor());
 
                     EndPaint(hwnd, &ps);
                     break;

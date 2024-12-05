@@ -3,9 +3,9 @@
 
 // Constructeurs
 Snake::Snake()
-    :Speed{0},IndexColumn{},IndexRow{},CurrentDirection{0},PreviousDirection{0},Size{0},SnakeRect{}{}
-Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size, std::vector<RECT> snakeRect)
-    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, CurrentDirection{currentDirection}, PreviousDirection{previousDirection}, Size{size}, SnakeRect{snakeRect}{}
+    :Speed{0},IndexColumn{},IndexRow{},CurrentDirection{0},PreviousDirection{0},Size{0},SnakeRect{},SnakeColor{RGB(255,255,255)}, SnakePreviousRect{0,0,0,0}{}
+Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect)
+    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, CurrentDirection{currentDirection}, PreviousDirection{previousDirection}, Size{size}, SnakeRect{snakeRect}, SnakeColor{snakeColor}, SnakePreviousRect{snakePreviousRect}{}
 
 // Méthodes de la classe
 void Snake::move(const Grid& grid){
@@ -14,7 +14,10 @@ void Snake::move(const Grid& grid){
     int rowOld = IndexRow.at(0);
     int columnTemp, rowTemp, i;
     RECT rectOld = SnakeRect.at(0);
-    RECT rectTemp;
+    RECT rectTemp {0,0,0,0};
+
+    // Avant le déplacement on récupère le dernier rectangle
+    SnakePreviousRect = SnakeRect.back();
 
     // On actualise la tête du serpent
     switch(CurrentDirection){
@@ -22,45 +25,49 @@ void Snake::move(const Grid& grid){
             // Le serpent monte vers le haut
             if( IndexRow.at(0) == 1 ){
                 // On est sur la première ligne
-                IndexRow.at(0) == grid.getNumberLines();
+                IndexRow.at(0) = grid.getNumberLines();
             }else{
                 // On est sur une ligne quelconque
                 IndexRow.at(0) -= 1;
             }
+            break;
         }
         case 2:{
             // Le serpent va vers la droite
             if( IndexColumn.at(0) == grid.getNumberColumns() ){
                 // On est sur la dernière colonne
-                IndexColumn.at(0) == 1;
+                IndexColumn.at(0) = 1;
             }else{
                 // On est sur une colonne quelconque
                 IndexColumn.at(0) += 1;
             }
+            break;
         }
         case 3:{
             // Le serpent va vers le bas
             if( IndexRow.at(0) == grid.getNumberLines() ){
                 // On est sur la dernière ligne
-                IndexRow.at(0) == 1;
+                IndexRow.at(0) = 1;
             }else{
                 // On est sur une ligne quelconque
                 IndexRow.at(0) += 1;
             }
+            break;
         }
         case 4:{
             // Le serpent va vers la gauche
             if( IndexColumn.at(0) == 1 ){
                 // On est sur la dernière colonne
-                IndexColumn.at(0) == grid.getNumberColumns();
+                IndexColumn.at(0) = grid.getNumberColumns();
             }else{
                 // On est sur une colonne quelconque
                 IndexColumn.at(0) -= 1;
             }
+            break;
         }
     }
     // On actualise le rectangle de la tête 
-    SnakeRect.at(0) = {grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+3, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+3, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1};
+    SnakeRect.at(0) = {grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1};
 
     // On actualise la queue du serpent
     for(i=1; i<Size; i++){
@@ -100,6 +107,8 @@ void Snake::init(const Grid& grid){
     SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
     CurrentDirection = 2;
     PreviousDirection = 2;
+    SnakeColor = RGB(255,255,255);
+    SnakePreviousRect = SnakeRect.back();
     Size = 1;
 }
 void Snake::gridChanged(const Grid& grid){
@@ -132,6 +141,12 @@ int Snake::getSize() const {
 const std::vector<RECT>& Snake::getSnakeRect() const {
     return SnakeRect;
 }
+COLORREF Snake::getSnakeColor() const{
+    return SnakeColor;
+}
+const RECT& Snake::getSnakePreviousRect() const{
+    return SnakePreviousRect;
+}
 
 // Setters
 void Snake::setSpeed(int speed) {
@@ -154,4 +169,10 @@ void Snake::setSize(int size) {
 }
 void Snake::setSnakeRect(const std::vector<RECT>& snakeRect){
     SnakeRect = snakeRect;
+}
+void Snake::setSnakeColor(COLORREF snakeColor){
+    SnakeColor = snakeColor;
+}
+void Snake::setSnakePreviousRect(const RECT& snakePreviousRect){
+    SnakePreviousRect = snakePreviousRect;
 }

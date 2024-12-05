@@ -15,6 +15,7 @@ class Game{
         static int Score;
         static bool Play;
         static bool GridSet;
+        static COLORREF BackgroundColor;
     public:
         // Getters
         static bool getInitialized();
@@ -22,6 +23,7 @@ class Game{
         static int getScore();
         static bool getPlay();
         static bool getGridSet();
+        static COLORREF getBackgroundColor();
 
         // Setters
         static void setInitialized(bool initialized);
@@ -29,6 +31,7 @@ class Game{
         static void setPlay(bool play);
         static void setScore(int score);
         static void setGridSet(bool gridSet);
+        static void setBackgroundColor(COLORREF backgroundColor);
 
         // Méthodes
         static void init();
@@ -36,6 +39,6 @@ class Game{
         static void drawGrid(const Grid& grid, HDC hdc, const COLORREF colorGrid);
         static void drawSnake(const Snake& snake, HDC hdc, const COLORREF colorSnake);
         static void windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground);
-        static void updateSnake(const RECT& rectOld, const RECT& newRect, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground);
+        static void updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground);
 };
 #endif

@@ -16,9 +16,11 @@ class Snake{
         int PreviousDirection;
         int Size;
         std::vector<RECT> SnakeRect;
+        COLORREF SnakeColor;
+        RECT SnakePreviousRect;
     public:
         Snake();
-        Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size, std::vector<RECT> snakeRect);
+        Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect);
         void move(const Grid& grid);
         void grow();
         void shrink();
@@ -33,6 +35,8 @@ class Snake{
         int getPreviousDirection() const;
         int getSize() const;
         const std::vector<RECT>& getSnakeRect() const;
+        COLORREF getSnakeColor() const;
+        const RECT& getSnakePreviousRect() const;
 
         // Setters
         void setSpeed(int speed);
@@ -42,5 +46,7 @@ class Snake{
         void setPreviousDirection(int previousDirection);
         void setSize(int size);
         void setSnakeRect(const std::vector<RECT>& snakeRect);
+        void setSnakeColor(COLORREF snakeColor);
+        void setSnakePreviousRect(const RECT& snakePreviousRect);
 };
 #endif
