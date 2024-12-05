@@ -3,9 +3,9 @@
 
 // Constructeurs
 Snake::Snake()
-    :Speed{0},IndexColumn{},IndexRow{},CurrentDirection{0},PreviousDirection{0},Size{0},SnakeRect{},SnakeColor{RGB(255,255,255)}, SnakePreviousRect{0,0,0,0}{}
-Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, int currentDirection, int previousDirection, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect)
-    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, CurrentDirection{currentDirection}, PreviousDirection{previousDirection}, Size{size}, SnakeRect{snakeRect}, SnakeColor{snakeColor}, SnakePreviousRect{snakePreviousRect}{}
+    :Speed{0},IndexColumn{},IndexRow{},Directions{},Size{0},SnakeRect{},SnakeColor{RGB(255,255,255)}, SnakePreviousRect{0,0,0,0}{}
+Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect)
+    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, Directions{directions}, Size{size}, SnakeRect{snakeRect}, SnakeColor{snakeColor}, SnakePreviousRect{snakePreviousRect}{}
 
 // Méthodes de la classe
 void Snake::move(const Grid& grid){
@@ -20,7 +20,7 @@ void Snake::move(const Grid& grid){
     SnakePreviousRect = SnakeRect.back();
 
     // On actualise la tête du serpent
-    switch(CurrentDirection){
+    switch(Directions.front()){
         case 1:{
             // Le serpent monte vers le haut
             if( IndexRow.at(0) == 1 ){
@@ -98,15 +98,14 @@ void Snake::shrink(){
 }
 void Snake::init(const Grid& grid){
     // Fonction qui réinitialise le serpent aux paramètres initiaux
-    Speed = 50;
+    Speed = 200;
     IndexColumn.erase(IndexColumn.begin(),IndexColumn.begin()+Size);
     IndexRow.erase(IndexRow.begin(),IndexRow.begin()+Size);
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
     IndexRow.push_back(ceil(static_cast<double> (grid.getNumberLines()/2)));
     SnakeRect.erase(SnakeRect.begin(),SnakeRect.begin()+Size);
     SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
-    CurrentDirection = 2;
-    PreviousDirection = 2;
+    Directions.push_back(2);
     SnakeColor = RGB(255,255,255);
     SnakePreviousRect = SnakeRect.back();
     Size = 1;
@@ -118,6 +117,23 @@ void Snake::gridChanged(const Grid& grid){
         SnakeRect.at(i) = {grid.getOffsetXLeft()+(IndexColumn.at(i)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(i)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(i)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(i)*(grid.getCellHeight()+1)-1};
     }
 }
+void Snake::addDirection(int direction){
+    Directions.push_back(direction);
+}
+bool Snake::popDirection() {
+    if (Directions.empty()) {
+        return false;
+    }
+    Directions.erase(Directions.begin()); // Supprime l'élément au début
+    return true;
+}
+bool Snake::peekDirection(int &direction) const {
+    if (Directions.empty()) {
+        return false;
+    }
+    direction = Directions.front();
+    return true;
+}
 
 // Getters
 int Snake::getSpeed() const {
@@ -128,12 +144,6 @@ const std::vector<int>& Snake::getIndexColumn() const {
 }
 const std::vector<int>& Snake::getIndexRow() const {
     return IndexRow;
-}
-int Snake::getCurrentDirection() const {
-    return CurrentDirection;
-}
-int Snake::getPreviousDirection() const {
-    return PreviousDirection;
 }
 int Snake::getSize() const {
     return Size;
@@ -147,6 +157,9 @@ COLORREF Snake::getSnakeColor() const{
 const RECT& Snake::getSnakePreviousRect() const{
     return SnakePreviousRect;
 }
+const std::vector<int>& Snake::getDirections() const{
+    return Directions;
+}
 
 // Setters
 void Snake::setSpeed(int speed) {
@@ -157,12 +170,6 @@ void Snake::setIndexColumn(const std::vector<int>& indexColumn) {
 }
 void Snake::setIndexRow(const std::vector<int>& indexRow) {
     IndexRow = indexRow;
-}
-void Snake::setCurrentDirection(int currentDirection) {
-    CurrentDirection = currentDirection;
-}
-void Snake::setPreviousDirection(int previousDirection) {
-    PreviousDirection = previousDirection;
 }
 void Snake::setSize(int size) {
     Size = size;
@@ -175,4 +182,7 @@ void Snake::setSnakeColor(COLORREF snakeColor){
 }
 void Snake::setSnakePreviousRect(const RECT& snakePreviousRect){
     SnakePreviousRect = snakePreviousRect;
+}
+void Snake::setDirections(const std::vector<int>& directions){
+    Directions = directions;
 }

@@ -25,12 +25,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if (wParam == MOVE_TIMER_ID) {
                 windowData->snake->move(*windowData->grid);
+                windowData->snake->popDirection();
                 Game::setPaintFlag(RECT_MOVING);
                 InvalidateRect(hwnd, nullptr, TRUE);
             }
         }
         case WM_KEYDOWN:{
             windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            int oldDirection = 0;
+            windowData->snake->peekDirection(oldDirection);
             if( wParam == VK_RIGHT || wParam == VK_LEFT || wParam == VK_UP || wParam == VK_DOWN ){
                 if( !Game::getPlay() ){
                     SetTimer(hwnd, MOVE_TIMER_ID, windowData->snake->getSpeed(), nullptr);
@@ -54,31 +57,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 }
                 case VK_RIGHT:{
-                    if( windowData->snake->getCurrentDirection() != 4 ){
+                    if( oldDirection != 4 ){
                         // Se déplace autre que à gauche
-                        windowData->snake->setPreviousDirection(windowData->snake->getCurrentDirection());
-                        windowData->snake->setCurrentDirection(2);
+                        windowData->snake->addDirection(2);
                     }
                     break;
                 }
                 case VK_LEFT:{
-                    if( windowData->snake->getCurrentDirection() != 2 ){
-                        windowData->snake->setPreviousDirection(windowData->snake->getCurrentDirection());
-                        windowData->snake->setCurrentDirection(4);
+                    if( oldDirection != 2 ){
+                        windowData->snake->addDirection(4);
                     }
                     break;
                 }
                 case VK_UP:{
-                    if( windowData->snake->getCurrentDirection() != 3 ){
-                        windowData->snake->setPreviousDirection(windowData->snake->getCurrentDirection());
-                        windowData->snake->setCurrentDirection(1);
+                    if( oldDirection != 3 ){
+                        windowData->snake->addDirection(1);
                     }
                     break;
                 }
                 case VK_DOWN:{
-                    if( windowData->snake->getCurrentDirection() != 1 ){
-                        windowData->snake->setPreviousDirection(windowData->snake->getCurrentDirection());
-                        windowData->snake->setCurrentDirection(3);
+                    if( oldDirection != 1 ){
+                        windowData->snake->addDirection(3);
                     }
                     break;
                 }
