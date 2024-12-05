@@ -98,7 +98,7 @@ void Snake::shrink(){
 }
 void Snake::init(const Grid& grid){
     // Fonction qui réinitialise le serpent aux paramètres initiaux
-    Speed = 100;
+    Speed = 50;
     IndexColumn.erase(IndexColumn.begin(),IndexColumn.begin()+Size);
     IndexRow.erase(IndexRow.begin(),IndexRow.begin()+Size);
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));

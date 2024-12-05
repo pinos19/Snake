@@ -51,6 +51,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         InvalidateRect(hwnd, nullptr, TRUE);
                         Game::setPaintFlag(INIT_GRID_RECT);
                     }
+                    break;
                 }
                 case VK_RIGHT:{
                     if( windowData->snake->getCurrentDirection() != 4 ){
@@ -84,12 +85,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 case VK_ESCAPE:{
                     if( Game::getPlay() ){
                         KillTimer(hwnd, MOVE_TIMER_ID);
-                    }
+                        RECT rectWindow;
+                        GetClientRect(hwnd, &rectWindow);
 
-                    // Marquer toute la fenêtre comme invalide pour déclencher un WM_PAINT
-                    InvalidateRect(hwnd, nullptr, TRUE);
-                    if( Game::getInitialized() ){
-                        Game::setPaintFlag(WINDOW_RESIZED);
+                        int width = rectWindow.right - rectWindow.left;
+                        int height = rectWindow.bottom - rectWindow.top;
+                        // Création du bouton bien placé
+                        createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
                     }
                     break;
                 }  
@@ -151,6 +153,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             // Initialisation du snake et de la grille
             windowData->grid->init(width, height);
             windowData->snake->init(*windowData->grid);
+            windowData->snake->grow();
+            windowData->snake->grow();
+            windowData->snake->grow();
+            windowData->snake->grow();
+            windowData->snake->grow();
+            windowData->snake->grow();
+
             Game::setPaintFlag(INIT_APP);
             return 0;
         }
@@ -187,6 +196,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     Game::drawGrid(*windowData->grid, hdc, windowData->grid->getGridColor());
                     Game::drawSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor());
 
+                    // Set la grille
+                    Game::setGridSet(true);
+
                     EndPaint(hwnd, &ps);
                     break;
                 }
@@ -203,80 +215,53 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 case WINDOW_RESIZED:{
                     // On est dans le cas où on redimensionne la fenêtre du jeu
                     // Actualisation du bouton Jouer (positionnement)
-                    // HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
-                    // if( hButton ){
-                    //     DestroyWindow(hButton);
-                    // }
+                    HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
+                    if( hButton ){
+                        DestroyWindow(hButton);
+                    }
 
-                    // RECT rectWindow;
-                    // GetClientRect(hwnd, &rectWindow);
+                    RECT rectWindow;
+                    GetClientRect(hwnd, &rectWindow);
 
-                    // int width = rectWindow.right - rectWindow.left;
-                    // int height = rectWindow.bottom - rectWindow.top;
-                    // // Création du bouton bien placé
-                    // createPlayButton(hwnd, width, height);
+                    int width = rectWindow.right - rectWindow.left;
+                    int height = rectWindow.bottom - rectWindow.top;
+                    // Création du bouton bien placé
+                    createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
 
-                    // // Il faut recentrer le bouton
-                    // PAINTSTRUCT ps;
-                    // HDC hdc = BeginPaint(hwnd, &ps);
+                    // Il faut recentrer le bouton
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hwnd, &ps);
 
-                    // // Remplissage du fond
-                    // HBRUSH hbrush = CreateSolidBrush(RGB(50,50,50));
-                    // FillRect(hdc, &rectWindow, hbrush);
-                    // DeleteObject(hbrush);
+                    // On actualise l'affichage
+                    Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
+                    Game::drawGrid(*windowData->grid, hdc,windowData->grid->getGridColor());
+                    Game::drawSnake(*windowData->snake, hdc,windowData->snake->getSnakeColor());
 
-                    // // Actualisation de la grille
-                    // if( grid_set ){
-                    //     UpdateGrid(hdc, rectWindow ,RGB(255,255,255));
-                    //     updateSnake();
-
-                    //     HBRUSH hbrush = CreateSolidBrush(RGB(255,255,255));
-                    //     FillRect(hdc, &rect, hbrush);
-
-                    //     for(int i =0; i<length_snake-1; i++){
-                    //         RECT rect_temp;
-                    //         rect_temp = snake_tail.at(i);
-                    //         FillRect(hdc, &rect_temp, hbrush);
-                    //     }
-                    //     DeleteObject(hbrush);
-                    // }
-
-                    // EndPaint(hwnd, &ps);
+                    EndPaint(hwnd, &ps);
                     break;
                 }
                 case CONTINUE_GAME:{
-                    // RECT rectWindow;
-                    // GetClientRect(hwnd, &rectWindow);
-                    // // Il faut recentrer le bouton
-                    // PAINTSTRUCT ps;
-                    // HDC hdc = BeginPaint(hwnd, &ps);
+                    // On reprend le jeu
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hwnd, &ps);
 
-                    // // Remplissage du fond
-                    // HBRUSH hbrush1 = CreateSolidBrush(RGB(50,50,50));
-                    // FillRect(hdc, &rectWindow, hbrush1);
-                    // DeleteObject(hbrush1);
+                    RECT rectWindow;
+                    GetClientRect(hwnd, &rectWindow);
 
-                    // // Actualisation de la grille
-                    // UpdateGrid(hdc, rectWindow ,RGB(255,255,255));
-                    // updateSnake();
+                    // Dessin de la grille
+                    Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
+                    Game::drawGrid(*windowData->grid, hdc, windowData->grid->getGridColor());
+                    Game::drawSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor());
 
-                    // HBRUSH hbrush2 = CreateSolidBrush(RGB(255,255,255));
-                    // FillRect(hdc, &rect, hbrush2);
-
-                    // for(int i =0; i<length_snake-1; i++){
-                    //     RECT rect_temp;
-                    //     rect_temp = snake_tail.at(i);
-                    //     FillRect(hdc, &rect_temp, hbrush2);
-                    // }
-                    // DeleteObject(hbrush2);
-
-                    // EndPaint(hwnd, &ps);
+                    EndPaint(hwnd, &ps);
                     break;
                 }
             }
             return 0;
         }
         case WM_SIZE:{
+            windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            // Redimensionnement
             if( Game::getPlay() ){
                 // On met en pause
                 KillTimer(hwnd, MOVE_TIMER_ID);
@@ -284,6 +269,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
             InvalidateRect(hwnd, nullptr, TRUE);
             if( Game::getInitialized() ){
+                // Modification de la fenêtre
+                RECT rectWindow;
+                GetClientRect(hwnd, &rectWindow);
+
+                int width = rectWindow.right - rectWindow.left;
+                int height = rectWindow.bottom - rectWindow.top;
+                windowData->grid->windowChanged(width, height);
+                windowData->snake->gridChanged(*windowData->grid);
                 Game::setPaintFlag(WINDOW_RESIZED);
             }
             return 0;
