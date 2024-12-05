@@ -25,11 +25,13 @@ void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton
     int xStartingPoint = (widthWindow - widthButton)/2;
     int yStartingPoint = (heightWindow - heightButton)/2;
 
+    void* ptr = reinterpret_cast<void*>(static_cast<std::uintptr_t>(idButton));
+
     CreateWindow(
         L"BUTTON", L"Jouer",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_OWNERDRAW,
         xStartingPoint, yStartingPoint, widthButton, heightButton,
-        hwnd,(HMENU)idButton,
+        hwnd,(HMENU)ptr,
         (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
         nullptr);
 }

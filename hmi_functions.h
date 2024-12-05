@@ -2,6 +2,7 @@
 #define _HMI_FUNCTIONS_H_
 
 #include <windows.h>
+#include <cstdint>
 
 void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton);
 void updatePlayButtonPosition(HWND hwnd, int idButton);
