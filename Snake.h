@@ -28,6 +28,7 @@ class Snake{
         void addDirection(int direction);
         bool popDirection();
         bool peekDirection(int &direction) const;
+        bool isSnake(int rowIndex, int columnIndex);
 
         // Getters
         int getSpeed() const;

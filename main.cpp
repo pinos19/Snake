@@ -25,12 +25,45 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if (wParam == MOVE_TIMER_ID) {
                 // On déplace le serpent
-                windowData->snake->move(*windowData->grid);
-
+                int cellValue = windowData->snake->move(*windowData->grid);
                 
-                windowData->snake->popDirection();
-                Game::setPaintFlag(RECT_MOVING);
-                InvalidateRect(hwnd, nullptr, TRUE);
+                switch( cellValue ){
+                    case 0:{
+                        // Case vide
+                        windowData->snake->popDirection();
+                        Game::setPaintFlag(RECT_MOVING);
+                        InvalidateRect(hwnd, nullptr, TRUE);
+                        break;
+                    }
+                    case 1:{
+
+                        break;
+                    }
+                    case 2:{
+
+                        break;
+                    }
+                    case 3:{
+
+                        break;
+                    }
+                    case 4:{
+                        // Le serpent se mord la queue
+                        if( Game::getPlay() ){
+                            KillTimer(hwnd, MOVE_TIMER_ID);
+                            RECT rectWindow;
+                            GetClientRect(hwnd, &rectWindow);
+
+                            int width = rectWindow.right - rectWindow.left;
+                            int height = rectWindow.bottom - rectWindow.top;
+                            // Création du bouton bien placé
+                            createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
+                            Game::setPlay(false);
+                            Game::setGridSet(false);
+                        }
+                        break;
+                    }
+                }
             }
         }
         case WM_KEYDOWN:{
@@ -94,6 +127,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         int height = rectWindow.bottom - rectWindow.top;
                         // Création du bouton bien placé
                         createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
+                        Game::setPlay(false);
                     }
                     break;
                 }  
@@ -155,6 +189,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             // Initialisation du snake et de la grille
             windowData->grid->init(width, height);
             windowData->snake->init(*windowData->grid);
+            windowData->snake->grow();
+            windowData->snake->grow();
+            windowData->snake->grow();
+            windowData->snake->grow();
             windowData->snake->grow();
             windowData->snake->grow();
             windowData->snake->grow();

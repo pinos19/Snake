@@ -10,11 +10,18 @@ Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow,
 // Méthodes de la classe
 int Snake::move(const Grid& grid){
     // Fonction qui permet de déplacer le serpent avec la valeur de déplacement actuelle
+    // La fonction retourne un entier qui permet d'indiquer l'état de la nouvelle case
+    // 0 => vide
+    // bombe = 1
+    // clous = 2
+    // poussière = 3
+    // serpent = 4
     int columnOld = IndexColumn.at(0);
     int rowOld = IndexRow.at(0);
-    int columnTemp{0}, rowTemp{0}, i{0}, newRow{0}, newColumn{0};
+    int columnTemp{0}, rowTemp{0}, i{0}, newRow{rowOld}, newColumn{columnOld};
     RECT rectOld = SnakeRect.at(0);
     RECT rectTemp {0,0,0,0};
+    int valueCell = 0;
 
     // Avant le déplacement on récupère le dernier rectangle
     SnakePreviousRect = SnakeRect.back();
@@ -66,9 +73,17 @@ int Snake::move(const Grid& grid){
             break;
         }
     }
-    // On regarde si la case suivante est une bombe, une pomme ou une case vide
-    
+    // On regarde si la case suivante n'est pas une case serpent
+    if( isSnake(newRow, newColumn) ){
+        valueCell = 4;
+    }else{
+        // On teste pour voir si le serpent n'est pas sur une bombe, un clou ou de la poussière
+        valueCell = grid.checkGrid(newRow, newColumn);
+    }
 
+    // On affecte les nouvelles valeurs
+    IndexColumn.at(0) = newColumn;
+    IndexRow.at(0) = newRow;
 
     // On actualise le rectangle de la tête 
     SnakeRect.at(0) = {grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1};
@@ -85,6 +100,22 @@ int Snake::move(const Grid& grid){
         rowOld = rowTemp;
         rectOld = rectTemp;
     }
+
+    return valueCell;
+}
+bool Snake::isSnake(int rowIndex, int columnIndex){
+    // Fonction qui permet de dire si la case ciblée cible une case
+    // serpent ou non
+    bool isSnake {false};
+
+    for(int i =0; i<Size; i++){
+        if( IndexColumn.at(i) == columnIndex && IndexRow.at(i) == rowIndex){
+            isSnake = true;
+            break;
+        }
+    }
+
+    return isSnake;
 }
 void Snake::grow(){
     // Fonction qui permet de faire grandir le serpent de 1
@@ -128,7 +159,9 @@ bool Snake::popDirection() {
     if (Directions.empty()) {
         return false;
     }
-    Directions.erase(Directions.begin()); // Supprime l'élément au début
+    if( Directions.size() > 1 ){
+        Directions.erase(Directions.begin());
+    }
     return true;
 }
 bool Snake::peekDirection(int &direction) const {
@@ -140,53 +173,21 @@ bool Snake::peekDirection(int &direction) const {
 }
 
 // Getters
-int Snake::getSpeed() const {
-    return Speed;
-}
-const std::vector<int>& Snake::getIndexColumn() const {
-    return IndexColumn;
-}
-const std::vector<int>& Snake::getIndexRow() const {
-    return IndexRow;
-}
-int Snake::getSize() const {
-    return Size;
-}
-const std::vector<RECT>& Snake::getSnakeRect() const {
-    return SnakeRect;
-}
-COLORREF Snake::getSnakeColor() const{
-    return SnakeColor;
-}
-const RECT& Snake::getSnakePreviousRect() const{
-    return SnakePreviousRect;
-}
-const std::vector<int>& Snake::getDirections() const{
-    return Directions;
-}
+int Snake::getSpeed() const { return Speed;}
+const std::vector<int>& Snake::getIndexColumn() const { return IndexColumn; }
+const std::vector<int>& Snake::getIndexRow() const { return IndexRow; }
+int Snake::getSize() const { return Size; }
+const std::vector<RECT>& Snake::getSnakeRect() const { return SnakeRect; }
+COLORREF Snake::getSnakeColor() const{ return SnakeColor; }
+const RECT& Snake::getSnakePreviousRect() const{ return SnakePreviousRect; }
+const std::vector<int>& Snake::getDirections() const{ return Directions; }
 
 // Setters
-void Snake::setSpeed(int speed) {
-    Speed = speed;
-}
-void Snake::setIndexColumn(const std::vector<int>& indexColumn) {
-    IndexColumn = indexColumn;
-}
-void Snake::setIndexRow(const std::vector<int>& indexRow) {
-    IndexRow = indexRow;
-}
-void Snake::setSize(int size) {
-    Size = size;
-}
-void Snake::setSnakeRect(const std::vector<RECT>& snakeRect){
-    SnakeRect = snakeRect;
-}
-void Snake::setSnakeColor(COLORREF snakeColor){
-    SnakeColor = snakeColor;
-}
-void Snake::setSnakePreviousRect(const RECT& snakePreviousRect){
-    SnakePreviousRect = snakePreviousRect;
-}
-void Snake::setDirections(const std::vector<int>& directions){
-    Directions = directions;
-}
+void Snake::setSpeed(int speed) { Speed = speed; }
+void Snake::setIndexColumn(const std::vector<int>& indexColumn) { IndexColumn = indexColumn; }
+void Snake::setIndexRow(const std::vector<int>& indexRow) { IndexRow = indexRow; }
+void Snake::setSize(int size) { Size = size; }
+void Snake::setSnakeRect(const std::vector<RECT>& snakeRect){ SnakeRect = snakeRect; }
+void Snake::setSnakeColor(COLORREF snakeColor){ SnakeColor = snakeColor; }
+void Snake::setSnakePreviousRect(const RECT& snakePreviousRect){ SnakePreviousRect = snakePreviousRect; }
+void Snake::setDirections(const std::vector<int>& directions){ Directions = directions; }
