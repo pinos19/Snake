@@ -24,7 +24,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         case WM_TIMER:{
             windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if (wParam == MOVE_TIMER_ID) {
+                // On déplace le serpent
                 windowData->snake->move(*windowData->grid);
+
+                
                 windowData->snake->popDirection();
                 Game::setPaintFlag(RECT_MOVING);
                 InvalidateRect(hwnd, nullptr, TRUE);

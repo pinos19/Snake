@@ -20,7 +20,7 @@ class Snake{
     public:
         Snake();
         Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect);
-        void move(const Grid& grid);
+        int move(const Grid& grid);
         void grow();
         void shrink();
         void init(const Grid& grid);

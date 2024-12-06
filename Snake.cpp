@@ -8,11 +8,11 @@ Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow,
     :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, Directions{directions}, Size{size}, SnakeRect{snakeRect}, SnakeColor{snakeColor}, SnakePreviousRect{snakePreviousRect}{}
 
 // Méthodes de la classe
-void Snake::move(const Grid& grid){
+int Snake::move(const Grid& grid){
     // Fonction qui permet de déplacer le serpent avec la valeur de déplacement actuelle
     int columnOld = IndexColumn.at(0);
     int rowOld = IndexRow.at(0);
-    int columnTemp, rowTemp, i;
+    int columnTemp{0}, rowTemp{0}, i{0}, newRow{0}, newColumn{0};
     RECT rectOld = SnakeRect.at(0);
     RECT rectTemp {0,0,0,0};
 
@@ -23,49 +23,53 @@ void Snake::move(const Grid& grid){
     switch(Directions.front()){
         case 1:{
             // Le serpent monte vers le haut
-            if( IndexRow.at(0) == 1 ){
+            if( rowOld == 1 ){
                 // On est sur la première ligne
-                IndexRow.at(0) = grid.getNumberLines();
+                newRow = grid.getNumberLines();
             }else{
                 // On est sur une ligne quelconque
-                IndexRow.at(0) -= 1;
+                newRow -= 1;
             }
             break;
         }
         case 2:{
             // Le serpent va vers la droite
-            if( IndexColumn.at(0) == grid.getNumberColumns() ){
+            if( columnOld == grid.getNumberColumns() ){
                 // On est sur la dernière colonne
-                IndexColumn.at(0) = 1;
+                newColumn = 1;
             }else{
                 // On est sur une colonne quelconque
-                IndexColumn.at(0) += 1;
+                newColumn += 1;
             }
             break;
         }
         case 3:{
             // Le serpent va vers le bas
-            if( IndexRow.at(0) == grid.getNumberLines() ){
+            if( rowOld == grid.getNumberLines() ){
                 // On est sur la dernière ligne
-                IndexRow.at(0) = 1;
+                newRow = 1;
             }else{
                 // On est sur une ligne quelconque
-                IndexRow.at(0) += 1;
+                newRow += 1;
             }
             break;
         }
         case 4:{
             // Le serpent va vers la gauche
-            if( IndexColumn.at(0) == 1 ){
+            if( columnOld == 1 ){
                 // On est sur la dernière colonne
-                IndexColumn.at(0) = grid.getNumberColumns();
+                newColumn = grid.getNumberColumns();
             }else{
                 // On est sur une colonne quelconque
-                IndexColumn.at(0) -= 1;
+                newColumn -= 1;
             }
             break;
         }
     }
+    // On regarde si la case suivante est une bombe, une pomme ou une case vide
+    
+
+
     // On actualise le rectangle de la tête 
     SnakeRect.at(0) = {grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1};
 
@@ -98,7 +102,7 @@ void Snake::shrink(){
 }
 void Snake::init(const Grid& grid){
     // Fonction qui réinitialise le serpent aux paramètres initiaux
-    Speed = 200;
+    Speed = 50;
     IndexColumn.erase(IndexColumn.begin(),IndexColumn.begin()+Size);
     IndexRow.erase(IndexRow.begin(),IndexRow.begin()+Size);
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
