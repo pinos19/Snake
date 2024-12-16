@@ -51,6 +51,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         // Le serpent se mord la queue
                         if( Game::getPlay() ){
                             KillTimer(hwnd, MOVE_TIMER_ID);
+                            windowData->snake->init(*windowData->grid);
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+                            windowData->snake->grow();
+
+                            
                             RECT rectWindow;
                             GetClientRect(hwnd, &rectWindow);
 
@@ -60,6 +73,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                             createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
                             Game::setPlay(false);
                             Game::setGridSet(false);
+                            InvalidateRect(hwnd, nullptr, TRUE);
+                            Game::setPaintFlag(INIT_GRID_RECT);
                         }
                         break;
                     }
