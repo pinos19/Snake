@@ -171,6 +171,56 @@ bool Snake::peekDirection(int &direction) const {
     direction = Directions.front();
     return true;
 }
+RECT Snake::invalidateSnake(){
+    // Fonction qui permet de récupérer la zone rectangulaire du serpent actuel et du dernier carré.
+    // La fonction retourne le rectangle d'invalidation
+
+    // On initialise les valeurs sur le rectangle précédent
+    int bottom = SnakePreviousRect.bottom;
+    int top = SnakePreviousRect.top;
+    int left = SnakePreviousRect.left;
+    int right = SnakePreviousRect.right;
+
+    for(int i =0; i< Size; i++){
+        // On parcourt tout le serpent et on actualise les côtés du rectangle à invalider
+        if( SnakeRect.at(i).bottom > bottom ){
+            bottom = SnakeRect.at(i).bottom;
+        }
+        if( SnakeRect.at(i).top < top ){
+            top = SnakeRect.at(i).top;
+        }
+        if( SnakeRect.at(i).right > right ){
+            right = SnakeRect.at(i).right;
+        }
+        if( SnakeRect.at(i).left < left ){
+            left = SnakeRect.at(i).left;
+        }
+    }
+
+    return RECT {left, top, right, bottom};
+}
+std::vector<int> Snake::immunitySnake(const Grid& grid) const{
+    // Fonction qui donne les index d'immunité du serpent dans la grille. 
+    // Ces index permettent de ne pas mettre d'objet sur ces cases lors des rafraîchissements
+    // de la grille
+
+
+    if( Size == 1 ){
+        // Taille du serpent de 1
+
+        
+    }else if( Size == 2 ){
+        // Taille du serpent de 2
+
+
+    }else{
+        // Taille du serpent plus grande que 2, (3 ou plus)
+
+    }
+    for(int i = 1; i<Size; i++){
+
+    }
+}
 
 // Getters
 int Snake::getSpeed() const { return Speed;}

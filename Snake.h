@@ -6,6 +6,7 @@
 #include <cmath>
 #include "Grid.h"
 #include <windows.h>
+#include "utils_functions.h"
 
 class Snake{
     private:
@@ -29,6 +30,8 @@ class Snake{
         bool popDirection();
         bool peekDirection(int &direction) const;
         bool isSnake(int rowIndex, int columnIndex);
+        RECT invalidateSnake();
+        std::vector<int> immunitySnake(const Grid& grid) const;
 
         // Getters
         int getSpeed() const;

@@ -131,3 +131,9 @@ void Game::updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const C
     DeleteObject(hbrushBack);
     DeleteObject(hbrushSnake);
 }
+void Game::actualizeGridElements(const Grid& grid, const Snake& snake){
+    // Fonction qui permet d'actualiser la position des bombes, de la poussière et des clous en fonction
+    // de la position du serpent
+
+    
+}

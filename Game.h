@@ -40,5 +40,6 @@ class Game{
         static void drawSnake(const Snake& snake, HDC hdc, const COLORREF colorSnake);
         static void windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground);
         static void updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground);
+        static void actualizeGridElements(const Grid& grid, const Snake& snake);
 };
 #endif
