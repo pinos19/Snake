@@ -204,79 +204,50 @@ std::vector<int> Snake::immunitySnake(const Grid& grid) const{
     // Ces index permettent de ne pas mettre d'objet sur ces cases lors des rafraîchissements
     // de la grille
     std::vector<int> immunityIndex;
+    int rowHead = IndexRow.front();
+    int columnHead = IndexColumn.front();
+    int immunityDistanceHead = 5;
+    int left {1}, top {1}, bottom{grid.getNumberLines()}, right{grid.getNumberColumns()};
 
-    if( Size <= 2 ){
-        // Taille du serpent de 1 ou 2
-
-        // On retourne l'index linéaire de chaque case, il n'y a pas besoin de calculer le rectangle 
-        // englobant
-        for(int i = 0; i < Size; i++){
-            immunityIndex.push_back(grid.getNumberLines()*(IndexColumn.at(i)-1) + IndexRow.at(i));
-        }
-    }else{
-        // Taille du serpent plus grande que 2, (3 ou plus)
-
-        // On doit maintenant invalider le rectangle englobant qui contient le serpent,
-        // ce qui est un peu plus délicat
-
-        int rowPrevious = IndexRow.front();
-        int columnPrevious = IndexColumn.front();
-        int rowTemp {0}, columnTemp {0}, countRow {0}, countColumn {0};
-        std::vector<int> horizontalDiff;
-        std::vector<int> verticalDiff;
-
-        // On boucle pour sommer les directions
-        for(int i = 1; i<Size; i++){
-            // Récupération des index de colonnes et lignes
-            rowTemp = IndexRow.at(i);
-            columnTemp = IndexColumn.at(i);
-
-            if( std::abs(rowTemp - rowPrevious) > 1 ){
-                // On vient de passer hors de l'écran
-                if( rowTemp - rowPrevious > 0 ){
-                    // On passe du top de l'écran au bottom
-                    countRow += -1;
-                }else{
-                    // On passe du bottom de l'écran au top
-                    countRow += 1;
-                }
-            }else{
-                // Décale de ligne de 1, on monte ou on descend
-                countRow += rowTemp - rowPrevious;
-            }
-
-            if( std::abs(columnTemp - columnPrevious) > 1 ){
-                // On vient de passer hors de l'écran
-                if( columnTemp - columnPrevious > 0 ){
-                    // On passe du top de l'écran au bottom
-                    countColumn += -1;
-                }else{
-                    // On passe du bottom de l'écran au top
-                    countColumn += 1;
-                }
-            }else{
-                // Décale de ligne de 1, on monte ou on descend
-                countColumn += columnTemp - columnPrevious;
-            }
-
-            // Actualisation différence en vertical (lignes)
-            verticalDiff.push_back(countRow);
-            rowPrevious = rowTemp;
-            // Actualisation différence en horizontal (colonnes)
-            horizontalDiff.push_back(countColumn);
-            columnPrevious = columnTemp;
-        }
-
-        // Une fois qu'on est là, on a des vecteurs avec les informations nécessaires pour
-        // calculer le rectangle englobant autour du serpent en tenant compte des sorties 
-        // d'écran
-        int offsetLeftColumn = minVector(horizontalDiff);
-        int offsetRightColumn = maxVector(horizontalDiff);
-        int offsetTopRow = minVector(verticalDiff);
-        int offsetBottomRow = maxVector(verticalDiff);
-
-        
+    // On transforme tous les index en index linéaires pour le serpent, on invalide le serpent 
+    // tout entier
+    for(int i = 0; i < Size; i++){
+        immunityIndex.push_back(grid.getNumberLines()*(IndexColumn.at(i)-1) + IndexRow.at(i));
     }
+
+    // Maintenant on trace un rectangle d'immunité relatif à la tête du serpent
+    // Le rectangle se limite aux frontières de la fenêtre. C'est à diree qu'il ne 
+    // respecte pas forcément la distance donnée (contraint par les dimensions de la fenêtre)
+    if( rowHead - immunityDistanceHead + 1 >= 0){
+        // On ne dépasse pas en haut
+        top = rowHead - immunityDistanceHead;
+    }
+    if( grid.getNumberLines() - rowHead >= immunityDistanceHead){
+        // On ne dépasse pas en bas
+        bottom = rowHead + immunityDistanceHead;
+    }
+    if( columnHead - immunityDistanceHead + 1 >= 0){
+        // On ne dépasse pas à gauche
+        left = columnHead - immunityDistanceHead;
+    }
+    if( grid.getNumberColumns() - columnHead >= immunityDistanceHead){
+        // On ne dépasse pas à droite
+        right = columnHead + immunityDistanceHead;
+    }
+
+    // Maintenant on récupère les index linéaires du rectangle d'immunité en parcourant 
+    // colonne par colonne
+    int numberColumns = right - left + 1;
+    int numberRows = bottom - top + 1;
+    int startingIndex {0};
+
+    for(int i = 0; i < numberColumns; i++){
+        startingIndex = grid.getNumberLines()*(left + i - 1) + top;
+        for(int j = 0; j<numberRows; j++){
+            immunityIndex.push_back(startingIndex + j);
+        }
+    }
+
 }
 
 // Getters
