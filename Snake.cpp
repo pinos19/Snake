@@ -8,7 +8,7 @@ Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow,
     :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, Directions{directions}, Size{size}, SnakeRect{snakeRect}, SnakeColor{snakeColor}, SnakePreviousRect{snakePreviousRect}{}
 
 // Méthodes de la classe
-int Snake::move(const Grid& grid){
+int Snake::move(Grid& grid){
     // Fonction qui permet de déplacer le serpent avec la valeur de déplacement actuelle
     // La fonction retourne un entier qui permet d'indiquer l'état de la nouvelle case
     // 0 => vide
@@ -78,7 +78,7 @@ int Snake::move(const Grid& grid){
         valueCell = 4;
     }else{
         // On teste pour voir si le serpent n'est pas sur une bombe, un clou ou de la poussière
-        valueCell = grid.checkGrid(newRow, newColumn);
+        valueCell = grid.popGrid(newRow, newColumn);
     }
 
     // On affecte les nouvelles valeurs
@@ -246,6 +246,7 @@ std::vector<int> Snake::immunitySnake(const Grid& grid, int immunityDistanceHead
             immunityIndex.push_back(startingIndex + j);
         }
     }
+    return immunityIndex;
 }
 
 // Getters

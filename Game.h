@@ -42,5 +42,8 @@ class Game{
         static void updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground);
         static void actualizeGridElements(Grid& grid, const Snake& snake);
         static void drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, const COLORREF colorNail, const COLORREF colorDust);
+        static void drawBomb(const Grid& grid, HDC hdc, const COLORREF colorBomb);
+        static void drawNail(const Grid& grid, HDC hdc, const COLORREF colorNail);
+        static void drawDust(const Grid& grid, HDC hdc, const COLORREF colorDust);
 };
 #endif

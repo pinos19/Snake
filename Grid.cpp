@@ -113,6 +113,45 @@ int Grid::checkGrid(int rowIndex, int columnIndex) const{
 
     return valueGrid;
 }
+int Grid::popGrid(int rowIndex, int columnIndex){
+    // Fonction qui prend en entrée un index de ligne et de colonne. La fonction retourne une valeur en fonction
+    // de la case. La fonction supprime l'index de l'élément de son tableau
+    // case :
+    // vide = 0
+    // bombe = 1
+    // clous = 2
+    // poussière = 3
+    std::vector<int>::const_iterator  it;
+    int valueGrid = 0;
+
+    // La première chose est de convertir les deux index en un seul index
+    int cellIndex = (columnIndex-1)*NumberLines + rowIndex;
+
+    // Ensuite il faut comparer cet index avec les trois tableaux
+    if( !IndexBombs.empty()){
+        it = std::find(IndexBombs.begin(), IndexBombs.end(), 1);
+        if( it != IndexBombs.end() ){
+            IndexBombs.erase(it);
+            valueGrid = 1;
+        }
+    }
+    if( !IndexNails.empty()){
+        it = std::find(IndexNails.begin(), IndexNails.end(), 2);
+        if( it != IndexNails.end() ){
+            IndexNails.erase(it);
+            valueGrid = 2;
+        }
+    }
+    if( !IndexDusts.empty()){
+        it = std::find(IndexDusts.begin(), IndexDusts.end(), 3);
+        if( it != IndexDusts.end() ){
+            IndexDusts.erase(it);
+            valueGrid = 3;
+        }
+    }
+
+    return valueGrid;
+}
 void Grid::fillGridWithElements(const std::vector<int>& indexToAvoid){
     // Fonction qui remet à zéro les vecteurs d'index qui contiennent les clous, les poussières
     // et les bombes

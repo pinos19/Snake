@@ -32,6 +32,7 @@ class Grid{
         void init(int widthWindow, int heightWindow);
         int checkGrid(int rowIndex, int columnIndex) const;
         void fillGridWithElements(const std::vector<int>& indexToAvoid);
+        int popGrid(int rowIndex, int columnIndex);
 
         // Getters
         int getRatioCell() const;

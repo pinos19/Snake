@@ -116,6 +116,9 @@ void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC hd
     // Actualisation serpent et affichage
     snake.gridChanged(grid);
     drawSnake(snake, hdc, colorSnake);
+
+    // Actualisation élements
+    drawElements(grid, hdc, RGB(255,0,0), RGB(255,255,0), RGB(0,255,0));
 }
 void Game::updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground) {
     // Code pour mettre à jour le serpent, uniquement après un déplacement
@@ -144,10 +147,13 @@ void Game::actualizeGridElements(Grid& grid, const Snake& snake){
 void Game::drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, const COLORREF colorNail, const COLORREF colorDust){
     // Fonction qui permet de dessiner sur la figure les éléments de la grille
 
+    drawBomb(grid, hdc, colorBomb);
+    drawNail(grid, hdc, colorNail);
+    drawDust(grid, hdc, colorDust);
+}
+void Game::drawBomb(const Grid& grid, HDC hdc, const COLORREF colorBomb){
     int i {0}, index {0}, iColumn {0}, iRow {0};
     const std::vector<int>& indexBombs = grid.getIndexBombs();
-    const std::vector<int>& indexNails = grid.getIndexBombs();
-    const std::vector<int>& indexDusts = grid.getIndexBombs();
 
     HBRUSH hBrush = CreateSolidBrush(colorBomb);
     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
@@ -162,14 +168,18 @@ void Game::drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, con
         iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
         Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
         grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
-        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-2,
-        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-2);
+        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-1,
+        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-1);
     }
     // Restauration des anciens pinceaux et stylos
     SelectObject(hdc, hOldBrush);
     SelectObject(hdc, hOldPen);
     DeleteObject(hBrush);
     DeleteObject(hPen);
+}
+void Game::drawNail(const Grid& grid, HDC hdc, const COLORREF colorNail){
+    int i {0}, index {0}, iColumn {0}, iRow {0};
+    const std::vector<int>& indexNails = grid.getIndexNails();
 
     HBRUSH hBrush = CreateSolidBrush(colorNail);
     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
@@ -182,15 +192,18 @@ void Game::drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, con
         iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
         Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
         grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
-        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-2,
-        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-2);
+        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-1,
+        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-1);
     }
     // Restauration des anciens pinceaux et stylos
     SelectObject(hdc, hOldBrush);
     SelectObject(hdc, hOldPen);
     DeleteObject(hBrush);
     DeleteObject(hPen);
-
+}
+void Game::drawDust(const Grid& grid, HDC hdc, const COLORREF colorDust){
+    int i {0}, index {0}, iColumn {0}, iRow {0};
+    const std::vector<int>& indexDusts = grid.getIndexDusts();
 
     HBRUSH hBrush = CreateSolidBrush(colorDust);
     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
@@ -203,13 +216,12 @@ void Game::drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, con
         iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
         Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
         grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
-        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-2,
-        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-2);
+        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-1,
+        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-1);
     }
     // Restauration des anciens pinceaux et stylos
     SelectObject(hdc, hOldBrush);
     SelectObject(hdc, hOldPen);
     DeleteObject(hBrush);
     DeleteObject(hPen);
-
 }

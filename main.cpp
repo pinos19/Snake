@@ -204,16 +204,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             // Initialisation du snake et de la grille
             windowData->grid->init(width, height);
             windowData->snake->init(*windowData->grid);
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
-            windowData->snake->grow();
+            std::vector<int> indexImmune = windowData->snake->immunitySnake(*windowData->grid, 5);
+            windowData->grid->fillGridWithElements(indexImmune);
 
             Game::setPaintFlag(INIT_APP);
             return 0;
@@ -250,6 +242,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
                     Game::drawGrid(*windowData->grid, hdc, windowData->grid->getGridColor());
                     Game::drawSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor());
+                    Game::drawElements(*windowData->grid, hdc, RGB(255,0,0), RGB(255,255,0), RGB(0,255,0));
 
                     // Set la grille
                     Game::setGridSet(true);
