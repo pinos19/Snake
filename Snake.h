@@ -31,7 +31,7 @@ class Snake{
         bool peekDirection(int &direction) const;
         bool isSnake(int rowIndex, int columnIndex);
         RECT invalidateSnake();
-        std::vector<int> immunitySnake(const Grid& grid) const;
+        std::vector<int> immunitySnake(const Grid& grid, int immunityDistanceHead) const;
 
         // Getters
         int getSpeed() const;

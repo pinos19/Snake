@@ -135,5 +135,8 @@ void Game::actualizeGridElements(const Grid& grid, const Snake& snake){
     // Fonction qui permet d'actualiser la position des bombes, de la poussière et des clous en fonction
     // de la position du serpent
 
+    // On récupère les index sur lesquels ne pas placer de bombes, de clous ou de poussières
+    std::vector<int> indexImmunitySnake = snake.immunitySnake(grid, 5);
+
     
 }

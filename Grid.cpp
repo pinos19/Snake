@@ -113,6 +113,46 @@ int Grid::checkGrid(int rowIndex, int columnIndex) const{
 
     return valueGrid;
 }
+void Grid::fillGridWithElements(const std::vector<int>& indexToAvoid){
+    // Fonction qui remet à zéro les vecteurs d'index qui contiennent les clous, les poussières
+    // et les bombes
+
+    // Remise à zéro
+    IndexBombs.clear();
+    IndexNails.clear();
+    IndexDusts.clear();
+
+    // On va peupler avec des statistiques les 3 éléments sur toute la grille puis on retirera 
+    // les éléments qui se trouvent sur les index donnés en entrée
+    double probabilityElement = 0.1;
+    double probabilityBomb = 0.2;
+    double probabilityNail = 0.3;
+    double probabilityDust = 0.5;
+    int numberCells = NumberColumns*NumberLines;
+
+    // Modèle de génération de nombre aléatoire entre 1 et 10
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(1,10);
+    int typeElement {0};
+
+    for(int i=1; i<=numberCells; i++){
+        if( dist(gen) == 1 ){
+            // Il y a un élément
+            typeElement = dist(gen);
+            if( typeElement >= 9 ){
+                // 20 % bombe
+                IndexBombs.push_back(i);
+            }else if( typeElement >= 6){
+                // 30 % clous
+                IndexNails.push_back(i);
+            }else{
+                // 50 % poussière
+                IndexDusts.push_back(i);
+            }
+        }
+    }
+}
 
 // Getters
 int Grid::getRatioCell() const { return RatioCell; }

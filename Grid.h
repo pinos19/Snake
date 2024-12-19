@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <vector>
 #include <algorithm>
+#include <random>
 
 class Grid{
     private:
@@ -30,6 +31,7 @@ class Grid{
         void windowChanged(int widthWindow, int heightWindow);
         void init(int widthWindow, int heightWindow);
         int checkGrid(int rowIndex, int columnIndex) const;
+        void fillGridWithElements(const std::vector<int>& indexToAvoid);
 
         // Getters
         int getRatioCell() const;

@@ -199,14 +199,13 @@ RECT Snake::invalidateSnake(){
 
     return RECT {left, top, right, bottom};
 }
-std::vector<int> Snake::immunitySnake(const Grid& grid) const{
+std::vector<int> Snake::immunitySnake(const Grid& grid, int immunityDistanceHead) const{
     // Fonction qui donne les index d'immunité du serpent dans la grille. 
     // Ces index permettent de ne pas mettre d'objet sur ces cases lors des rafraîchissements
     // de la grille
     std::vector<int> immunityIndex;
     int rowHead = IndexRow.front();
     int columnHead = IndexColumn.front();
-    int immunityDistanceHead = 5;
     int left {1}, top {1}, bottom{grid.getNumberLines()}, right{grid.getNumberColumns()};
 
     // On transforme tous les index en index linéaires pour le serpent, on invalide le serpent 
@@ -247,7 +246,6 @@ std::vector<int> Snake::immunitySnake(const Grid& grid) const{
             immunityIndex.push_back(startingIndex + j);
         }
     }
-
 }
 
 // Getters
