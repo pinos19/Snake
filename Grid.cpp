@@ -124,10 +124,10 @@ void Grid::fillGridWithElements(const std::vector<int>& indexToAvoid){
 
     // On va peupler avec des statistiques les 3 éléments sur toute la grille puis on retirera 
     // les éléments qui se trouvent sur les index donnés en entrée
-    double probabilityElement = 0.1;
-    double probabilityBomb = 0.2;
-    double probabilityNail = 0.3;
-    double probabilityDust = 0.5;
+    // probabilité élément = 10%;
+    // probabilité bombe sachant élément = 20%;
+    // probabilité clou sachant élément = 30%;
+    // probabilité poussière sachant élément = 50%;
     int numberCells = NumberColumns*NumberLines;
 
     // Modèle de génération de nombre aléatoire entre 1 et 10
@@ -135,20 +135,28 @@ void Grid::fillGridWithElements(const std::vector<int>& indexToAvoid){
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(1,10);
     int typeElement {0};
+    std::vector<int>::const_iterator it;
 
     for(int i=1; i<=numberCells; i++){
         if( dist(gen) == 1 ){
-            // Il y a un élément
-            typeElement = dist(gen);
-            if( typeElement >= 9 ){
-                // 20 % bombe
-                IndexBombs.push_back(i);
-            }else if( typeElement >= 6){
-                // 30 % clous
-                IndexNails.push_back(i);
-            }else{
-                // 50 % poussière
-                IndexDusts.push_back(i);
+            // Il y a un élément, on regarde si le numéro de cellule est 
+            // dans la zone immunisée ou non
+            it = find(indexToAvoid.begin(), indexToAvoid.end(), i);
+
+            if( it == indexToAvoid.end() ){
+                // Index pas dans la zonne d'immunité, on ressort un nombre alétoire pour décider
+                // le type d'élément
+                typeElement = dist(gen);
+                if( typeElement >= 9 ){
+                    // 20 % bombe
+                    IndexBombs.push_back(i);
+                }else if( typeElement >= 6){
+                    // 30 % clous
+                    IndexNails.push_back(i);
+                }else{
+                    // 50 % poussière
+                    IndexDusts.push_back(i);
+                }
             }
         }
     }

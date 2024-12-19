@@ -131,12 +131,85 @@ void Game::updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const C
     DeleteObject(hbrushBack);
     DeleteObject(hbrushSnake);
 }
-void Game::actualizeGridElements(const Grid& grid, const Snake& snake){
+void Game::actualizeGridElements(Grid& grid, const Snake& snake){
     // Fonction qui permet d'actualiser la position des bombes, de la poussière et des clous en fonction
     // de la position du serpent
 
     // On récupère les index sur lesquels ne pas placer de bombes, de clous ou de poussières
     std::vector<int> indexImmunitySnake = snake.immunitySnake(grid, 5);
 
-    
+    // On réinitialise les éléments sur la grille
+    grid.fillGridWithElements(indexImmunitySnake);
+}
+void Game::drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, const COLORREF colorNail, const COLORREF colorDust){
+    // Fonction qui permet de dessiner sur la figure les éléments de la grille
+
+    int i {0}, index {0}, iColumn {0}, iRow {0};
+    const std::vector<int>& indexBombs = grid.getIndexBombs();
+    const std::vector<int>& indexNails = grid.getIndexBombs();
+    const std::vector<int>& indexDusts = grid.getIndexBombs();
+
+    HBRUSH hBrush = CreateSolidBrush(colorBomb);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+    HPEN hPen = CreatePen(PS_SOLID, 1, colorBomb);
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+    // On boucle sur chaque vecteur et on dessine les éléments
+    for(i = 0; i< indexBombs.size(); i++){
+        // Dessine un cercle pour la bombe
+        index = indexBombs.at(i);
+        iColumn = std::ceil(static_cast<double> (index)/grid.getNumberLines());
+        iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
+        Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
+        grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
+        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-2,
+        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-2);
+    }
+    // Restauration des anciens pinceaux et stylos
+    SelectObject(hdc, hOldBrush);
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hBrush);
+    DeleteObject(hPen);
+
+    HBRUSH hBrush = CreateSolidBrush(colorNail);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+    HPEN hPen = CreatePen(PS_SOLID, 1, colorNail);
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+    for(i = 0; i< indexNails.size(); i++){
+        // Dessine un cercle pour le clou 
+        index = indexNails.at(i);
+        iColumn = std::ceil(static_cast<double> (index)/grid.getNumberLines());
+        iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
+        Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
+        grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
+        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-2,
+        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-2);
+    }
+    // Restauration des anciens pinceaux et stylos
+    SelectObject(hdc, hOldBrush);
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hBrush);
+    DeleteObject(hPen);
+
+
+    HBRUSH hBrush = CreateSolidBrush(colorDust);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+    HPEN hPen = CreatePen(PS_SOLID, 1, colorDust);
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+    for(i = 0; i< indexDusts.size(); i++){
+        // Dessine un cercle pour la poussière 
+        index = indexDusts.at(i);
+        iColumn = std::ceil(static_cast<double> (index)/grid.getNumberLines());
+        iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
+        Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
+        grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
+        grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-2,
+        grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-2);
+    }
+    // Restauration des anciens pinceaux et stylos
+    SelectObject(hdc, hOldBrush);
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hBrush);
+    DeleteObject(hPen);
+
 }
