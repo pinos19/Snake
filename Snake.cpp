@@ -156,8 +156,8 @@ void Snake::init(const Grid& grid){
     IndexRow.push_back(ceil(static_cast<double> (grid.getNumberLines()/2)));
     SnakeRect.erase(SnakeRect.begin(),SnakeRect.begin()+Size);
     SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
-    Directions.push_back(2);
     SnakeColor = RGB(255,255,255);
+    Directions.clear();
     SnakePreviousRect.push_back(SnakeRect.back());
     Size = 1;
 }

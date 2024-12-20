@@ -7,6 +7,7 @@ int Game::Score = 0;
 bool Game::Play = false;
 bool Game::GridSet = false;
 COLORREF Game::BackgroundColor = RGB(0,0,0);
+bool Game::Moving = false;
 
 // Implémentation des getters et setters
 
@@ -29,6 +30,9 @@ bool Game::getGridSet() {
 COLORREF Game::getBackgroundColor(){
     return BackgroundColor;
 }
+bool Game::getMoving(){
+    return Moving;
+}
 
 // Setters
 void Game::setInitialized(bool initialized) {
@@ -49,6 +53,9 @@ void Game::setGridSet(bool gridSet) {
 void Game::setBackgroundColor(COLORREF backgroundColor){
     BackgroundColor = backgroundColor;
 }
+void Game::setMoving(bool moving){
+    Moving = moving;
+}
 
 
 // Implémentation des méthodes
@@ -64,6 +71,7 @@ void Game::init() {
     Score = 0;
     Play = false;
     BackgroundColor = RGB(50,50,50);
+    Moving = false;
 }
 void Game::drawGrid(const Grid& grid, HDC hdc, const COLORREF colorGrid) {
     // Code pour dessiner la grille

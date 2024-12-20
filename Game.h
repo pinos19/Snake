@@ -16,6 +16,7 @@ class Game{
         static bool Play;
         static bool GridSet;
         static COLORREF BackgroundColor;
+        static bool Moving;
     public:
         // Getters
         static bool getInitialized();
@@ -24,6 +25,7 @@ class Game{
         static bool getPlay();
         static bool getGridSet();
         static COLORREF getBackgroundColor();
+        static bool getMoving();
 
         // Setters
         static void setInitialized(bool initialized);
@@ -32,6 +34,7 @@ class Game{
         static void setScore(int score);
         static void setGridSet(bool gridSet);
         static void setBackgroundColor(COLORREF backgroundColor);
+        static void setMoving(bool moving);
 
         // Méthodes
         static void init();

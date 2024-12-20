@@ -4,9 +4,9 @@
 #include <windows.h>
 #include <cstdint>
 
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton);
+void playButton(HWND hwnd, const wchar_t textMessage[], int widthWindow, int heightWindow, int idButton);
 void updatePlayButtonPosition(HWND hwnd, int idButton);
-void playButtonStyle(DRAWITEMSTRUCT *const pdis);
+void buttonStyle(DRAWITEMSTRUCT *const pdis, const wchar_t textMessage[]);
 
 
 #endif

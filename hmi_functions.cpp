@@ -18,7 +18,7 @@ void updatePlayButtonPosition(HWND hwnd, int idButton){
         SetWindowPos(hButton, nullptr, xStartingPoint, yStartingPoint, widthButton, heightButton, SWP_NOZORDER);
     }   
 }
-void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton){
+void playButton(HWND hwnd, const wchar_t textMessage[], int widthWindow, int heightWindow, int idButton){
     int widthButton = widthWindow/14.24;
     int heightButton = heightWindow/14.12;
 
@@ -28,14 +28,14 @@ void createPlayButton(HWND hwnd, int widthWindow, int heightWindow, int idButton
     void* ptr = reinterpret_cast<void*>(static_cast<std::uintptr_t>(idButton));
 
     CreateWindow(
-        L"BUTTON", L"Jouer",
+        L"BUTTON", textMessage,
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_OWNERDRAW,
         xStartingPoint, yStartingPoint, widthButton, heightButton,
         hwnd,(HMENU)ptr,
         (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
         nullptr);
 }
-void playButtonStyle(DRAWITEMSTRUCT *const pdis){
+void buttonStyle(DRAWITEMSTRUCT *const pdis, const wchar_t textMessage[]){
     // Fonction qui donne le style pour le bouton Jouer
 
     HDC hdc = pdis->hDC;
@@ -73,7 +73,7 @@ void playButtonStyle(DRAWITEMSTRUCT *const pdis){
 
     HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
 
-    DrawText(hdc, L"Jouer", -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    DrawText(hdc, textMessage, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
     // Restaurer la police d'origine
     SelectObject(hdc, hOldFont);
