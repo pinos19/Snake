@@ -31,50 +31,62 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     case 0:{
                         // Case vide
                         windowData->snake->popDirection();
+                        RECT invalidationRect = windowData->snake->invalidateSnake();
                         Game::setPaintFlag(RECT_MOVING);
-                        InvalidateRect(hwnd, nullptr, TRUE);
+                        InvalidateRect(hwnd, &invalidationRect, TRUE);
                         break;
                     }
                     case 1:{
-
+                        // Bombe
+                        if( Game::getPlay() ){
+                            KillTimer(hwnd, MOVE_TIMER_ID);
+                            RECT rectWindow;
+                            GetClientRect(hwnd, &rectWindow);
+                            int width = rectWindow.right - rectWindow.left;
+                            int height = rectWindow.bottom - rectWindow.top;
+                            // Création du bouton bien placé
+                            createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
+                        }
                         break;
                     }
                     case 2:{
-
+                        // Clous
+                        if( windowData->snake->getSize() == 1 ){
+                            KillTimer(hwnd, MOVE_TIMER_ID);
+                            RECT rectWindow;
+                            GetClientRect(hwnd, &rectWindow);
+                            int width = rectWindow.right - rectWindow.left;
+                            int height = rectWindow.bottom - rectWindow.top;
+                            // Création du bouton bien placé
+                            createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
+                        }else{
+                            windowData->snake->popDirection();
+                            windowData->snake->shrink();
+                            RECT invalidationRect = windowData->snake->invalidateSnake();
+                            Game::setPaintFlag(RECT_MOVING);
+                            InvalidateRect(hwnd, &invalidationRect, TRUE);
+                        }
                         break;
                     }
                     case 3:{
-
+                        // Poussière
+                        windowData->snake->popDirection();
+                        windowData->snake->grow();
+                        RECT invalidationRect = windowData->snake->invalidateSnake();
+                        Game::setPaintFlag(RECT_MOVING);
+                        InvalidateRect(hwnd, &invalidationRect, TRUE);
                         break;
                     }
                     case 4:{
                         // Le serpent se mord la queue
                         if( Game::getPlay() ){
                             KillTimer(hwnd, MOVE_TIMER_ID);
-                            windowData->snake->init(*windowData->grid);
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-                            windowData->snake->grow();
-
-                            
                             RECT rectWindow;
                             GetClientRect(hwnd, &rectWindow);
-
                             int width = rectWindow.right - rectWindow.left;
                             int height = rectWindow.bottom - rectWindow.top;
                             // Création du bouton bien placé
                             createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
-                            Game::setPlay(false);
-                            Game::setGridSet(false);
-                            InvalidateRect(hwnd, nullptr, TRUE);
-                            Game::setPaintFlag(INIT_GRID_RECT);
                         }
                         break;
                     }
@@ -83,7 +95,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         }
         case WM_KEYDOWN:{
             windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-            int oldDirection = 0;
+            int oldDirection {0};
             windowData->snake->peekDirection(oldDirection);
             if( wParam == VK_RIGHT || wParam == VK_LEFT || wParam == VK_UP || wParam == VK_DOWN ){
                 if( !Game::getPlay() ){
@@ -192,21 +204,21 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             windowData = (WindowData*)pCreateStruct->lpCreateParams;
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)windowData);
 
-            // Création de l'application
+            // Création du bouton play
             RECT rect;
             GetClientRect(hwnd, &rect);
-
             int width = rect.right - rect.left;
             int height = rect.bottom - rect.top;
-
             createPlayButton(hwnd, width, height, BUTTON_PLAY_ID);
 
             // Initialisation du snake et de la grille
+            // On donne à l'objet Grid les éléments calculés aléatoirement
             windowData->grid->init(width, height);
             windowData->snake->init(*windowData->grid);
             std::vector<int> indexImmune = windowData->snake->immunitySnake(*windowData->grid, 5);
             windowData->grid->fillGridWithElements(indexImmune);
 
+            // On met le paint flag en init app pour n'afficher que la couleur du fond d'écran
             Game::setPaintFlag(INIT_APP);
             return 0;
         }
@@ -217,13 +229,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             windowData = (WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             switch( Game::getPaintFlag() ){
                 case INIT_APP:{
+                    // Affichage initial de l'application
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);
 
-                    // Remplir toute la zone client avec une couleur de fond
+                    // Remplir toute la zone client avec la couleur de fond
                     RECT rectWindow;
                     GetClientRect(hwnd, &rectWindow);
-
                     Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
 
                     EndPaint(hwnd, &ps);

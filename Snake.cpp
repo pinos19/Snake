@@ -3,9 +3,23 @@
 
 // Constructeurs
 Snake::Snake()
-    :Speed{0},IndexColumn{},IndexRow{},Directions{},Size{0},SnakeRect{},SnakeColor{RGB(255,255,255)}, SnakePreviousRect{0,0,0,0}{}
-Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect)
-    :Speed{speed}, IndexColumn{indexColumn}, IndexRow{indexRow}, Directions{directions}, Size{size}, SnakeRect{snakeRect}, SnakeColor{snakeColor}, SnakePreviousRect{snakePreviousRect}{}
+    :Speed{0},
+    IndexColumn{},
+    IndexRow{},
+    Directions{},
+    Size{0},
+    SnakeRect{},
+    SnakeColor{RGB(255,255,255)},
+    SnakePreviousRect{}{}
+Snake::Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, std::vector<RECT> snakePreviousRect)
+    :Speed{speed},
+    IndexColumn{indexColumn},
+    IndexRow{indexRow},
+    Directions{directions},
+    Size{size},
+    SnakeRect{snakeRect},
+    SnakeColor{snakeColor},
+    SnakePreviousRect{snakePreviousRect}{}
 
 // Méthodes de la classe
 int Snake::move(Grid& grid){
@@ -24,7 +38,8 @@ int Snake::move(Grid& grid){
     int valueCell = 0;
 
     // Avant le déplacement on récupère le dernier rectangle
-    SnakePreviousRect = SnakeRect.back();
+    SnakePreviousRect.clear();
+    SnakePreviousRect.push_back(SnakeRect.back());
 
     // On actualise la tête du serpent
     switch(Directions.front()){
@@ -128,12 +143,13 @@ void Snake::shrink(){
     // Fonction qui permet de diminuer le serpent de 1
     IndexColumn.pop_back();
     IndexRow.pop_back();
+    SnakePreviousRect.push_back(SnakeRect.back());
     SnakeRect.pop_back();
     Size-=1;
 }
 void Snake::init(const Grid& grid){
     // Fonction qui réinitialise le serpent aux paramètres initiaux
-    Speed = 50;
+    Speed = 75;
     IndexColumn.erase(IndexColumn.begin(),IndexColumn.begin()+Size);
     IndexRow.erase(IndexRow.begin(),IndexRow.begin()+Size);
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
@@ -142,7 +158,7 @@ void Snake::init(const Grid& grid){
     SnakeRect.push_back({grid.getOffsetXLeft()+(IndexColumn.at(0)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(0)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(0)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(0)*(grid.getCellHeight()+1)-1});
     Directions.push_back(2);
     SnakeColor = RGB(255,255,255);
-    SnakePreviousRect = SnakeRect.back();
+    SnakePreviousRect.push_back(SnakeRect.back());
     Size = 1;
 }
 void Snake::gridChanged(const Grid& grid){
@@ -175,13 +191,14 @@ RECT Snake::invalidateSnake(){
     // Fonction qui permet de récupérer la zone rectangulaire du serpent actuel et du dernier carré.
     // La fonction retourne le rectangle d'invalidation
 
-    // On initialise les valeurs sur le rectangle précédent
-    int bottom = SnakePreviousRect.bottom;
-    int top = SnakePreviousRect.top;
-    int left = SnakePreviousRect.left;
-    int right = SnakePreviousRect.right;
+    // On initialise les valeurs sur le rectangle de tête
+    int bottom = SnakeRect.front().bottom;
+    int top = SnakeRect.front().top;
+    int left = SnakeRect.front().left;
+    int right = SnakeRect.front().right;
+    int i {0};
 
-    for(int i =0; i< Size; i++){
+    for(i =1; i< Size; i++){
         // On parcourt tout le serpent et on actualise les côtés du rectangle à invalider
         if( SnakeRect.at(i).bottom > bottom ){
             bottom = SnakeRect.at(i).bottom;
@@ -196,6 +213,23 @@ RECT Snake::invalidateSnake(){
             left = SnakeRect.at(i).left;
         }
     }
+
+    // On parcourt les rectangles précédents pour les inclure aussi
+    for(i = 0; i < SnakePreviousRect.size(); i++){
+        if( SnakePreviousRect.at(i).bottom > bottom ){
+            bottom = SnakePreviousRect.at(i).bottom;
+        }
+        if( SnakePreviousRect.at(i).top < top ){
+            top = SnakePreviousRect.at(i).top;
+        }
+        if( SnakePreviousRect.at(i).right > right ){
+            right = SnakePreviousRect.at(i).right;
+        }
+        if( SnakePreviousRect.at(i).left < left ){
+            left = SnakePreviousRect.at(i).left;
+        }
+    }
+
 
     return RECT {left, top, right, bottom};
 }
@@ -256,7 +290,7 @@ const std::vector<int>& Snake::getIndexRow() const { return IndexRow; }
 int Snake::getSize() const { return Size; }
 const std::vector<RECT>& Snake::getSnakeRect() const { return SnakeRect; }
 COLORREF Snake::getSnakeColor() const{ return SnakeColor; }
-const RECT& Snake::getSnakePreviousRect() const{ return SnakePreviousRect; }
+const std::vector<RECT>& Snake::getSnakePreviousRect() const{ return SnakePreviousRect; }
 const std::vector<int>& Snake::getDirections() const{ return Directions; }
 
 // Setters
@@ -266,5 +300,5 @@ void Snake::setIndexRow(const std::vector<int>& indexRow) { IndexRow = indexRow;
 void Snake::setSize(int size) { Size = size; }
 void Snake::setSnakeRect(const std::vector<RECT>& snakeRect){ SnakeRect = snakeRect; }
 void Snake::setSnakeColor(COLORREF snakeColor){ SnakeColor = snakeColor; }
-void Snake::setSnakePreviousRect(const RECT& snakePreviousRect){ SnakePreviousRect = snakePreviousRect; }
+void Snake::setSnakePreviousRect(const std::vector<RECT>& snakePreviousRect){ SnakePreviousRect = snakePreviousRect; }
 void Snake::setDirections(const std::vector<int>& directions){ Directions = directions; }

@@ -126,8 +126,13 @@ void Game::updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const C
     HBRUSH hbrushBack = CreateSolidBrush(colorBackground);
     HBRUSH hbrushSnake = CreateSolidBrush(colorSnake);
 
-    if( !EqualRect(&snake.getSnakePreviousRect(), &snake.getSnakeRect().at(snake.getSize()-1)) ){
-        FillRect(hdc, &snake.getSnakePreviousRect(), hbrushBack);
+    const std::vector<RECT>& snakePrevious = snake.getSnakePreviousRect();
+    const RECT& snakeLastRect = snake.getSnakeRect().back();
+
+    for(int i = 0; i< snakePrevious.size(); i++){
+        if( !EqualRect(&snakePrevious.at(i), &snakeLastRect) ){
+            FillRect(hdc, &snakePrevious.at(i), hbrushBack);
+        }
     }
     FillRect(hdc, &snake.getSnakeRect().front(), hbrushSnake);
 

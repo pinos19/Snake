@@ -129,21 +129,21 @@ int Grid::popGrid(int rowIndex, int columnIndex){
 
     // Ensuite il faut comparer cet index avec les trois tableaux
     if( !IndexBombs.empty()){
-        it = std::find(IndexBombs.begin(), IndexBombs.end(), 1);
+        it = std::find(IndexBombs.begin(), IndexBombs.end(), cellIndex);
         if( it != IndexBombs.end() ){
             IndexBombs.erase(it);
             valueGrid = 1;
         }
     }
     if( !IndexNails.empty()){
-        it = std::find(IndexNails.begin(), IndexNails.end(), 2);
+        it = std::find(IndexNails.begin(), IndexNails.end(), cellIndex);
         if( it != IndexNails.end() ){
             IndexNails.erase(it);
             valueGrid = 2;
         }
     }
     if( !IndexDusts.empty()){
-        it = std::find(IndexDusts.begin(), IndexDusts.end(), 3);
+        it = std::find(IndexDusts.begin(), IndexDusts.end(), cellIndex);
         if( it != IndexDusts.end() ){
             IndexDusts.erase(it);
             valueGrid = 3;

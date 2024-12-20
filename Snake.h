@@ -17,10 +17,10 @@ class Snake{
         int Size;
         std::vector<RECT> SnakeRect;
         COLORREF SnakeColor;
-        RECT SnakePreviousRect;
+        std::vector<RECT> SnakePreviousRect;
     public:
         Snake();
-        Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, RECT snakePreviousRect);
+        Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, std::vector<RECT> snakePreviousRect);
         int move(Grid& grid);
         void grow();
         void shrink();
@@ -41,7 +41,7 @@ class Snake{
         int getSize() const;
         const std::vector<RECT>& getSnakeRect() const;
         COLORREF getSnakeColor() const;
-        const RECT& getSnakePreviousRect() const;
+        const std::vector<RECT>& getSnakePreviousRect() const;
 
         // Setters
         void setSpeed(int speed);
@@ -50,7 +50,7 @@ class Snake{
         void setSize(int size);
         void setSnakeRect(const std::vector<RECT>& snakeRect);
         void setSnakeColor(COLORREF snakeColor);
-        void setSnakePreviousRect(const RECT& snakePreviousRect);
+        void setSnakePreviousRect(const std::vector<RECT>& snakePreviousRect);
         void setDirections(const std::vector<int>& directions);
 };
 #endif
