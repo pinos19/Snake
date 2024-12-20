@@ -106,19 +106,42 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
             switch (wParam){
                 case VK_RETURN:{
-                    // HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
-                    // if( hButton ){
-                    //     DestroyWindow(hButton);
-                    // }
-                    // if( Game::getGridSet() ){
-                    //     SetTimer(hwnd, MOVE_TIMER_ID, windowData->snake->getSpeed(), nullptr);
-                    //     InvalidateRect(hwnd, nullptr, TRUE);
-                    //     Game::setPaintFlag(CONTINUE_GAME);
-                    // }else{
-                    //     InvalidateRect(hwnd, nullptr, TRUE);
-                    //     Game::setPaintFlag(INIT_GRID_RECT);
-                    // }
-                    // break;
+                    if( !Game::getMoving() ){
+                        HWND hButtonPlay = GetDlgItem(hwnd, BUTTON_PLAY_ID);
+                        HWND hButtonContinue = GetDlgItem(hwnd, BUTTON_CONTINUE_ID);
+                        HWND hButtonReplay = GetDlgItem(hwnd, BUTTON_REPLAY_ID);
+
+                        if( hButtonPlay ){
+                            // On joue
+                            DestroyWindow(hButtonPlay);
+                            InvalidateRect(hwnd, nullptr, TRUE);
+                            Game::setPaintFlag(INIT_GRID_RECT);
+                        }
+                        if( hButtonContinue ){
+                            // On continue
+                            DestroyWindow(hButtonContinue);
+                            SetTimer(hwnd, MOVE_TIMER_ID, windowData->snake->getSpeed(), nullptr);
+                            Game::setMoving(true);
+                            InvalidateRect(hwnd, nullptr, TRUE);
+                            Game::setPaintFlag(CONTINUE_GAME);
+                        }
+                        if( hButtonReplay ){
+                            // On rejoue
+                            DestroyWindow(hButtonReplay);
+                            // Réinitialisation du serpent
+                            RECT rect;
+                            GetClientRect(hwnd, &rect);
+                            int width = rect.right - rect.left;
+                            int height = rect.bottom - rect.top;
+                            windowData->grid->init(width, height);
+                            windowData->snake->init(*windowData->grid);
+                            std::vector<int> indexImmune = windowData->snake->immunitySnake(*windowData->grid, 5);
+                            windowData->grid->fillGridWithElements(indexImmune);
+                            InvalidateRect(hwnd, nullptr, TRUE);
+                            Game::setPaintFlag(INIT_GRID_RECT);
+                        }
+                    }
+                    break;
                 }
                 case VK_RIGHT:{
                     if( oldDirection != 4 ){
@@ -146,18 +169,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 }
                 case VK_ESCAPE:{
-                    // if( Game::getPlay() ){
-                    //     KillTimer(hwnd, MOVE_TIMER_ID);
-                    //     RECT rectWindow;
-                    //     GetClientRect(hwnd, &rectWindow);
+                    if( Game::getMoving() ){
+                        KillTimer(hwnd, MOVE_TIMER_ID);
+                        RECT rectWindow;
+                        GetClientRect(hwnd, &rectWindow);
 
-                    //     int width = rectWindow.right - rectWindow.left;
-                    //     int height = rectWindow.bottom - rectWindow.top;
-                    //     // Création du bouton bien placé
-                    //     playButton(hwnd,L"Continuer", width, height, BUTTON_CONTINUE_ID);
-                    //     Game::setPlay(false);
-                    // }
-                    // break;
+                        int width = rectWindow.right - rectWindow.left;
+                        int height = rectWindow.bottom - rectWindow.top;
+                        // Création du bouton bien placé
+                        playButton(hwnd, L"Continuer", width, height, BUTTON_CONTINUE_ID);
+                        Game::setMoving(false);
+                    }
+                    break;
                 }  
                 default:
                     break;
@@ -182,6 +205,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
             if( controlID == BUTTON_CONTINUE_ID && notificationCode == BN_CLICKED){
                 // Bouton continuer
+                HWND hButton = GetDlgItem(hwnd, BUTTON_CONTINUE_ID);
+                if( hButton ){
+                    DestroyWindow(hButton);
+                    SetTimer(hwnd, MOVE_TIMER_ID, windowData->snake->getSpeed(), nullptr);
+                    Game::setMoving(true);
+                    InvalidateRect(hwnd, nullptr, TRUE);
+                    Game::setPaintFlag(CONTINUE_GAME);
+                }
             }
             if( controlID == BUTTON_REPLAY_ID && notificationCode == BN_CLICKED){
                 // Bouton rejouer
@@ -305,11 +336,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     //     HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
 
                     // }else{
-                    //     // Pas de grille dans le jeu 
+                    //     // Pas de grille dans le jeu, on est dans le menu principal
                     //     HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
 
                     // }
-
 
                     // HWND hButton = GetDlgItem(hwnd, BUTTON_PLAY_ID);
                     // if( hButton ){
@@ -348,6 +378,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     Game::clearFigure(rectWindow, hdc, Game::getBackgroundColor());
                     Game::drawGrid(*windowData->grid, hdc, windowData->grid->getGridColor());
                     Game::drawSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor());
+                    Game::drawElements(*windowData->grid, hdc, RGB(255,0,0), RGB(255,255,0), RGB(0,255,0));
 
                     EndPaint(hwnd, &ps);
                     break;
