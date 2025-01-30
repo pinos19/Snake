@@ -435,6 +435,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     const wchar_t CLASS_NAME[] = L"WINDOW";
+
+    Snake snake;
+    
+
     Snake* snake = new Snake();
     Grid* grid = new Grid();
 

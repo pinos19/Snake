@@ -1,50 +1,11 @@
 #include "Grid.h"
 
 
-// Constructeurs
-Grid::Grid()
-    :RatioCell{0},
-    NumberLines{0},
-    NumberColumns{0},
-    OffsetXLeft{0},
-    OffsetXRight{0},
-    OffsetYTop{0},
-    OffsetYBottom{0}, 
-    GridColor{RGB(255,255,255)},
-    IndexBombs{},
-    IndexNails{},
-    IndexDusts{}{}
-Grid::Grid(int ratioCell,int numberLines,int numberColumns,int offsetXLeft,int offsetXRight,int offsetYTop,int offsetYBottom,COLORREF gridColor,std::vector<int> indexBombs,std::vector<int> indexNails,std::vector<int> indexDusts)
-    :RatioCell{ratioCell},
-    NumberLines{numberLines},
-    NumberColumns{numberColumns},
-    OffsetXLeft{offsetXLeft},
-    OffsetXRight{offsetXRight},
-    OffsetYTop{offsetYTop},
-    OffsetYBottom{offsetYBottom},
-    GridColor{gridColor},
-    IndexBombs{indexBombs},
-    IndexNails{indexNails},
-    IndexDusts{indexDusts}{}
-
-// Méthodes de la classe
-void Grid::windowChanged(int widthWindow, int heightWindow){
-    // Fonction qui permet de mettre à jour la grille.
-
-    // On calcule le cell width à partir du nombre de colonnes et de lignes
-    CellWidth = (widthWindow-NumberColumns-1)/NumberColumns;
-    CellHeight = (heightWindow-NumberLines-1)/NumberLines;
-
-    // Calculer le décalage pour centrer la grille
-    OffsetXLeft = (widthWindow % CellWidth) / 2;
-    OffsetXRight = ceil(static_cast<double> (widthWindow % CellWidth)/2);
-    OffsetYTop = (heightWindow % CellHeight) / 2;
-    OffsetYBottom = ceil(static_cast<double> (heightWindow % CellHeight)/2);
-}
+// Methods
 void Grid::init(int widthWindow, int heightWindow){
-    // Initialisation de la première grille en fonction de la largeur et hauteur de la grille
+    // Initialization of the grid
 
-    // Ratio de la grille 
+    // Ratio of the grid
     RatioCell = 60;
     
     CellWidth = std::max(widthWindow, heightWindow)/RatioCell;
@@ -76,6 +37,21 @@ void Grid::init(int widthWindow, int heightWindow){
     IndexBombs = {};
     IndexNails = {};
     IndexDusts = {};
+}
+
+
+void Grid::windowChanged(int widthWindow, int heightWindow){
+    // Fonction qui permet de mettre à jour la grille.
+
+    // On calcule le cell width à partir du nombre de colonnes et de lignes
+    CellWidth = (widthWindow-NumberColumns-1)/NumberColumns;
+    CellHeight = (heightWindow-NumberLines-1)/NumberLines;
+
+    // Calculer le décalage pour centrer la grille
+    OffsetXLeft = (widthWindow % CellWidth) / 2;
+    OffsetXRight = ceil(static_cast<double> (widthWindow % CellWidth)/2);
+    OffsetYTop = (heightWindow % CellHeight) / 2;
+    OffsetYBottom = ceil(static_cast<double> (heightWindow % CellHeight)/2);
 }
 int Grid::checkGrid(int rowIndex, int columnIndex) const{
     // Fonction qui prend en entrée un index de ligne et de colonne. La fonction retourne une valeur en fonction
@@ -212,9 +188,9 @@ int Grid::getOffsetYBottom() const { return OffsetYBottom; }
 int Grid::getCellWidth() const{ return CellWidth; }
 int Grid::getCellHeight() const{ return CellHeight; }
 COLORREF Grid::getGridColor() const{ return GridColor; }
-const std::vector<int>& Grid::getIndexBombs() const { return IndexBombs; }
-const std::vector<int>& Grid::getIndexNails() const { return IndexNails; }
-const std::vector<int>& Grid::getIndexDusts() const { return IndexDusts; }
+const std::vector<std::pair<int, int>>& Grid::getIndexBombs() const { return IndexBombs; }
+const std::vector<std::pair<int, int>>& Grid::getIndexNails() const { return IndexNails; }
+const std::vector<std::pair<int, int>>& Grid::getIndexDusts() const { return IndexDusts; }
 
 // Setters
 void Grid::setRatioCell(int ratioCell){ RatioCell = ratioCell; }
@@ -227,6 +203,6 @@ void Grid::setOffsetYBottom(int offsetYBottom) { OffsetYBottom = offsetYBottom; 
 void Grid::setCellWidth(int cellWidth){ CellWidth = cellWidth; }
 void Grid::setCellHeight(int cellHeight){ CellHeight = cellHeight; }
 void Grid::setGridColor(COLORREF gridColor){ GridColor = gridColor; }
-void Grid::setIndexBombs(const std::vector<int>& indexBombs) { IndexBombs = indexBombs; }
-void Grid::setIndexNails(const std::vector<int>& indexNails) { IndexNails = indexNails; }
-void Grid::setIndexDusts(const std::vector<int>& indexDusts) { IndexDusts = indexDusts; }
+void Grid::setIndexBombs(const std::vector<std::pair<int, int>>& indexBombs) { IndexBombs = indexBombs; }
+void Grid::setIndexNails(const std::vector<std::pair<int, int>>& indexNails) { IndexNails = indexNails; }
+void Grid::setIndexDusts(const std::vector<std::pair<int, int>>& indexDusts) { IndexDusts = indexDusts; }

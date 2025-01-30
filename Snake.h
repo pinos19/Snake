@@ -2,55 +2,55 @@
 #define _SNAKE_H_
 
 #include <iostream>
-#include <vector>
 #include <cmath>
 #include "Grid.h"
 #include <windows.h>
 #include "utils_functions.h"
+#include <vector>
+#include <deque>
+#include <algorithm>
+#include <utility>
 
 class Snake{
+    public:
+        enum class Direction {Right, Left, Up, Down, None};
     private:
         int Speed;
+        int Size;
         std::vector<int> IndexColumn;
         std::vector<int> IndexRow;
-        std::vector<int> Directions;
-        int Size;
-        std::vector<RECT> SnakeRect;
-        COLORREF SnakeColor;
-        std::vector<RECT> SnakePreviousRect;
+        std::deque<Direction> Directions;
+        bool IsAlive;
+        COLORREF Color;
     public:
-        Snake();
-        Snake(int speed, std::vector<int> indexColumn, std::vector<int> indexRow, std::vector<int> directions, int size, std::vector<RECT> snakeRect, COLORREF snakeColor, std::vector<RECT> snakePreviousRect);
-        int move(Grid& grid);
-        void grow();
-        void shrink();
+        // Constructor
+        Snake() = default;
         void init(const Grid& grid);
-        void gridChanged(const Grid& grid);
-        void addDirection(int direction);
+        void addDirection(Direction direction);
         bool popDirection();
-        bool peekDirection(int &direction) const;
-        bool isSnake(int rowIndex, int columnIndex);
-        RECT invalidateSnake();
-        std::vector<int> immunitySnake(const Grid& grid, int immunityDistanceHead) const;
+        Direction getCurrentDirection() const;
+        Grid::TileContent move(Grid& grid);
+        void grow(int growingValue);
+        bool shrink(int shrinkingValue);
+        std::vector<std::pair<int, int>> immunitySnake(const Grid& grid, int immunityDistanceHead) const;
+
 
         // Getters
         int getSpeed() const;
         const std::vector<int>& getIndexColumn() const;
         const std::vector<int>& getIndexRow() const;
-        const std::vector<int>& getDirections() const;
+        const std::deque<Direction>& getDirections() const;
         int getSize() const;
-        const std::vector<RECT>& getSnakeRect() const;
-        COLORREF getSnakeColor() const;
-        const std::vector<RECT>& getSnakePreviousRect() const;
+        COLORREF getColor() const;
+        bool getIsAlive() const;
 
         // Setters
         void setSpeed(int speed);
         void setIndexColumn(const std::vector<int>& indexColumn);
         void setIndexRow(const std::vector<int>& indexRow);
         void setSize(int size);
-        void setSnakeRect(const std::vector<RECT>& snakeRect);
-        void setSnakeColor(COLORREF snakeColor);
-        void setSnakePreviousRect(const std::vector<RECT>& snakePreviousRect);
-        void setDirections(const std::vector<int>& directions);
+        void setColor(COLORREF color);
+        void setDirections(const std::deque<Direction>& directions);
+        void setIsAlive(bool isAlive);
 };
 #endif
