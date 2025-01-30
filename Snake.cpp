@@ -68,7 +68,7 @@ Grid::TileContent Snake::move(Grid& grid){
         }
         default:{break;}
     }
-    Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn);
+    Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn, *this);
 
     // Rotate vectors from 1 to the right
     std::rotate(IndexColumn.rbegin(), IndexColumn.rbegin() + 1, IndexColumn.rend());
@@ -81,16 +81,19 @@ Grid::TileContent Snake::move(Grid& grid){
     switch(tileContent){
         case Grid::TileContent::Bomb:{
             IsAlive = false;
+            break;
         }
         case Grid::TileContent::Nail:{
             shrink(1);
+            break;
         }
         case Grid::TileContent::Dust:{
             grow(1);
+            break;
         }
-        case Grid::TileContent::Empty:{}
         case Grid::TileContent::Snake:{
             IsAlive = false;
+            break;
         }
     }
 

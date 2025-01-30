@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <random>
 #include <utility>
+#include "Snake.h"
+#include <list>
 
 class Grid{
     public:
@@ -23,21 +25,19 @@ class Grid{
         int OffsetYTop;
         int OffsetYBottom;
         COLORREF GridColor;
-        std::vector<std::pair<int, int>> IndexBombs;
-        std::vector<std::pair<int, int>> IndexNails;
-        std::vector<std::pair<int, int>> IndexDusts;
+        std::list<std::pair<int, int>> IndexBombs;
+        std::list<std::pair<int, int>> IndexNails;
+        std::list<std::pair<int, int>> IndexDusts;
     public:
         Grid() = default;
 
         // Methods
         void init(int widthWindow, int heightWindow);
-
-
         void windowChanged(int widthWindow, int heightWindow);
-        int checkGrid(int rowIndex, int columnIndex) const;
         void fillGridWithElements(const std::vector<std::pair<int, int>>& indexesToAvoid);
-        int popGrid(int rowIndex, int columnIndex);
-        TileContent getContentTile(int rowIndex, int ColumnIndex);
+        bool popGrid(int rowIndex, int columnIndex);
+        TileContent getContentTile(int rowIndex, int ColumnIndex, const Snake &snake);
+        TileContent getContentTile(int rowIndex, int ColumnIndex, std::list<std::pair<int, int>>::iterator &it);
 
         // Getters
         int getRatioCell() const;

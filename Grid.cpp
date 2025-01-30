@@ -34,99 +34,107 @@ void Grid::init(int widthWindow, int heightWindow){
     GridColor = RGB(255,255,255);
 
     // Initialisation nulle des index de clous, bombes et poussières
-    IndexBombs = {};
-    IndexNails = {};
-    IndexDusts = {};
+    IndexBombs.clear();
+    IndexNails.clear();
+    IndexDusts.clear();
 }
-
-
 void Grid::windowChanged(int widthWindow, int heightWindow){
-    // Fonction qui permet de mettre à jour la grille.
+    // Function which actualize the grid because the window changed
 
-    // On calcule le cell width à partir du nombre de colonnes et de lignes
+    // Compute the cell width and height
     CellWidth = (widthWindow-NumberColumns-1)/NumberColumns;
     CellHeight = (heightWindow-NumberLines-1)/NumberLines;
 
-    // Calculer le décalage pour centrer la grille
+    // Compute the offsets to center the grid
     OffsetXLeft = (widthWindow % CellWidth) / 2;
     OffsetXRight = ceil(static_cast<double> (widthWindow % CellWidth)/2);
     OffsetYTop = (heightWindow % CellHeight) / 2;
     OffsetYBottom = ceil(static_cast<double> (heightWindow % CellHeight)/2);
 }
-int Grid::checkGrid(int rowIndex, int columnIndex) const{
-    // Fonction qui prend en entrée un index de ligne et de colonne. La fonction retourne une valeur en fonction
-    // de la case.
-    // case :
-    // vide = 0
-    // bombe = 1
-    // clous = 2
-    // poussière = 3
-    std::vector<int>::const_iterator  it;
-    int valueGrid = 0;
+Grid::TileContent Grid::getContentTile(int rowIndex, int ColumnIndex, const Snake &snake){
+    // Function which check the content of a cell
+    // Return the content, TileContent
 
-    // La première chose est de convertir les deux index en un seul index
-    int cellIndex = (columnIndex-1)*NumberLines + rowIndex;
+    // Beginning with the snake, we check if the cell does not contain a part of the snake
+    const std::vector<int> snakeIndexRow = snake.getIndexRow();
+    const std::vector<int> snakeIndexColumn = snake.getIndexColumn();
 
-    // Ensuite il faut comparer cet index avec les trois tableaux
+    std::vector<int>::const_iterator it1 = std::find(snakeIndexRow.cbegin(), snakeIndexRow.cend(), rowIndex);
+    if( it1 != snakeIndexRow.cend() ){
+        if( std::find(snakeIndexColumn.cbegin(), snakeIndexColumn.cend(), ColumnIndex) != snakeIndexColumn.cend() ){
+            return TileContent::Snake;
+        }
+    }
+
+    // Now we are going to check the other possibilities
+    std::pair<int, int> cellPair {rowIndex, ColumnIndex};
     if( !IndexBombs.empty()){
-        it = std::find(IndexBombs.begin(), IndexBombs.end(), 1);
-        if( it != IndexBombs.end() ){
-            valueGrid = 1;
+        if( std::find(IndexBombs.begin(), IndexBombs.end(), cellPair) != IndexBombs.end() ){
+            return TileContent::Bomb;
         }
     }
     if( !IndexNails.empty()){
-        it = std::find(IndexNails.begin(), IndexNails.end(), 2);
-        if( it != IndexNails.end() ){
-            valueGrid = 2;
+        if( std::find(IndexNails.begin(), IndexNails.end(), cellPair) != IndexNails.end() ){
+            return TileContent::Nail;
         }
     }
     if( !IndexDusts.empty()){
-        it = std::find(IndexDusts.begin(), IndexDusts.end(), 3);
-        if( it != IndexDusts.end() ){
-            valueGrid = 3;
+        if( std::find(IndexDusts.begin(), IndexDusts.end(), cellPair) != IndexDusts.end() ){
+            return TileContent::Dust;
         }
     }
-
-    return valueGrid;
+    return TileContent::Empty;
 }
-int Grid::popGrid(int rowIndex, int columnIndex){
-    // Fonction qui prend en entrée un index de ligne et de colonne. La fonction retourne une valeur en fonction
-    // de la case. La fonction supprime l'index de l'élément de son tableau
-    // case :
-    // vide = 0
-    // bombe = 1
-    // clous = 2
-    // poussière = 3
-    std::vector<int>::const_iterator  it;
-    int valueGrid = 0;
+Grid::TileContent Grid::getContentTile(int rowIndex, int ColumnIndex, std::list<std::pair<int, int>>::iterator &it){
+    // Function which check the content of a cell
+    // Return the content, TileContent
 
-    // La première chose est de convertir les deux index en un seul index
-    int cellIndex = (columnIndex-1)*NumberLines + rowIndex;
-
-    // Ensuite il faut comparer cet index avec les trois tableaux
+    // Now we are going to check the other possibilities
+    std::pair<int, int> cellPair {rowIndex, ColumnIndex};
     if( !IndexBombs.empty()){
-        it = std::find(IndexBombs.begin(), IndexBombs.end(), cellIndex);
+        it = std::find(IndexBombs.begin(), IndexBombs.end(), cellPair);
         if( it != IndexBombs.end() ){
-            IndexBombs.erase(it);
-            valueGrid = 1;
+            return TileContent::Bomb;
         }
     }
     if( !IndexNails.empty()){
-        it = std::find(IndexNails.begin(), IndexNails.end(), cellIndex);
+        it = std::find(IndexNails.begin(), IndexNails.end(), cellPair);
         if( it != IndexNails.end() ){
-            IndexNails.erase(it);
-            valueGrid = 2;
+            return TileContent::Nail;
         }
     }
     if( !IndexDusts.empty()){
-        it = std::find(IndexDusts.begin(), IndexDusts.end(), cellIndex);
+        it = std::find(IndexDusts.begin(), IndexDusts.end(), cellPair);
         if( it != IndexDusts.end() ){
-            IndexDusts.erase(it);
-            valueGrid = 3;
+            return TileContent::Dust;
+        }
+    }
+    return TileContent::Empty;
+}
+bool Grid::popGrid(int rowIndex, int columnIndex){
+    // Function which delete the element of a cell and return true or false
+    // True if there was an element in the cell, false otherwise
+
+    std::list<std::pair<int, int>>::iterator iterator;
+
+    TileContent tileContent = getContentTile(rowIndex, columnIndex, iterator);
+
+    switch( tileContent ){
+        case TileContent::Bomb:{
+            IndexBombs.erase(iterator);
+            return true;
+        }
+        case TileContent::Nail:{
+            IndexNails.erase(iterator);
+            return true;
+        }
+        case TileContent::Dust:{
+            IndexDusts.erase(iterator);
+            return true;
         }
     }
 
-    return valueGrid;
+    return false;
 }
 void Grid::fillGridWithElements(const std::vector<int>& indexToAvoid){
     // Fonction qui remet à zéro les vecteurs d'index qui contiennent les clous, les poussières

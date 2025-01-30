@@ -51,6 +51,7 @@
         "variant": "cpp",
         "cstring": "cpp",
         "iostream": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "list": "cpp"
     }
 }
