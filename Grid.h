@@ -50,9 +50,9 @@ class Grid{
         int getCellWidth() const;
         int getCellHeight() const;
         COLORREF getGridColor() const;
-        const std::vector<std::pair<int, int>>& getIndexBombs() const;
-        const std::vector<std::pair<int, int>>& getIndexNails() const;
-        const std::vector<std::pair<int, int>>& getIndexDusts() const;
+        const std::list<std::pair<int, int>>& getIndexBombs() const;
+        const std::list<std::pair<int, int>>& getIndexNails() const;
+        const std::list<std::pair<int, int>>& getIndexDusts() const;
 
         // Setters
         void setRatioCell(int ratioCell);
@@ -65,8 +65,8 @@ class Grid{
         void setCellWidth(int cellWidth);
         void setCellHeight(int cellHeight);
         void setGridColor(COLORREF gridColor);
-        void setIndexBombs(const std::vector<std::pair<int, int>>& indexBombs);
-        void setIndexNails(const std::vector<std::pair<int, int>>& indexNails);
-        void setIndexDusts(const std::vector<std::pair<int, int>>& indexDusts);
+        void setIndexBombs(const std::list<std::pair<int, int>>& indexBombs);
+        void setIndexNails(const std::list<std::pair<int, int>>& indexNails);
+        void setIndexDusts(const std::list<std::pair<int, int>>& indexDusts);
 };
 #endif

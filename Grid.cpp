@@ -136,49 +136,44 @@ bool Grid::popGrid(int rowIndex, int columnIndex){
 
     return false;
 }
-void Grid::fillGridWithElements(const std::vector<int>& indexToAvoid){
-    // Fonction qui remet à zéro les vecteurs d'index qui contiennent les clous, les poussières
-    // et les bombes
+void Grid::fillGridWithElements(const std::vector<std::pair<int, int>>& indexesToAvoid){
+    // Function wich reset the locations of the elements on the grid and assign new locations
 
-    // Remise à zéro
     IndexBombs.clear();
     IndexNails.clear();
     IndexDusts.clear();
 
-    // On va peupler avec des statistiques les 3 éléments sur toute la grille puis on retirera 
-    // les éléments qui se trouvent sur les index donnés en entrée
-    // probabilité élément = 10%;
-    // probabilité bombe sachant élément = 20%;
-    // probabilité clou sachant élément = 30%;
-    // probabilité poussière sachant élément = 50%;
-    int numberCells = NumberColumns*NumberLines;
+    // Probability to find an element = 10%;
+    // Bomb/element = 20%;
+    // Nail/element = 30%;
+    // Dust/element = 50%;
 
-    // Modèle de génération de nombre aléatoire entre 1 et 10
+    // Random generation model between 1 and 10
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(1,10);
     int typeElement {0};
-    std::vector<int>::const_iterator it;
 
-    for(int i=1; i<=numberCells; i++){
-        if( dist(gen) == 1 ){
-            // Il y a un élément, on regarde si le numéro de cellule est 
-            // dans la zone immunisée ou non
-            it = find(indexToAvoid.begin(), indexToAvoid.end(), i);
+    for(int i=1; i<=NumberColumns; i++){
+        for(int j=1; j<NumberLines; j++){
+            if( dist(gen) == 1 ){
+                // We are going to add an element
+                std::pair<int, int> cellPair {j, i};
 
-            if( it == indexToAvoid.end() ){
-                // Index pas dans la zonne d'immunité, on ressort un nombre alétoire pour décider
-                // le type d'élément
-                typeElement = dist(gen);
-                if( typeElement >= 9 ){
-                    // 20 % bombe
-                    IndexBombs.push_back(i);
-                }else if( typeElement >= 6){
-                    // 30 % clous
-                    IndexNails.push_back(i);
-                }else{
-                    // 50 % poussière
-                    IndexDusts.push_back(i);
+                // We need to check if the area is immune or not
+                if( std::find(indexesToAvoid.cbegin(), indexesToAvoid.cend(), cellPair) != indexesToAvoid.cend()){
+                    // We are in an area not immune
+                    typeElement = dist(gen);
+                    if( typeElement >= 9 ){
+                        // 20 % Bomb
+                        IndexBombs.push_back(cellPair);
+                    }else if( typeElement >= 6){
+                        // 30 % Nails
+                        IndexNails.push_back(cellPair);
+                    }else{
+                        // 50 % Dust
+                        IndexDusts.push_back(cellPair);
+                    }
                 }
             }
         }
@@ -196,9 +191,9 @@ int Grid::getOffsetYBottom() const { return OffsetYBottom; }
 int Grid::getCellWidth() const{ return CellWidth; }
 int Grid::getCellHeight() const{ return CellHeight; }
 COLORREF Grid::getGridColor() const{ return GridColor; }
-const std::vector<std::pair<int, int>>& Grid::getIndexBombs() const { return IndexBombs; }
-const std::vector<std::pair<int, int>>& Grid::getIndexNails() const { return IndexNails; }
-const std::vector<std::pair<int, int>>& Grid::getIndexDusts() const { return IndexDusts; }
+const std::list<std::pair<int, int>>& Grid::getIndexBombs() const { return IndexBombs; }
+const std::list<std::pair<int, int>>& Grid::getIndexNails() const { return IndexNails; }
+const std::list<std::pair<int, int>>& Grid::getIndexDusts() const { return IndexDusts; }
 
 // Setters
 void Grid::setRatioCell(int ratioCell){ RatioCell = ratioCell; }
@@ -211,6 +206,6 @@ void Grid::setOffsetYBottom(int offsetYBottom) { OffsetYBottom = offsetYBottom; 
 void Grid::setCellWidth(int cellWidth){ CellWidth = cellWidth; }
 void Grid::setCellHeight(int cellHeight){ CellHeight = cellHeight; }
 void Grid::setGridColor(COLORREF gridColor){ GridColor = gridColor; }
-void Grid::setIndexBombs(const std::vector<std::pair<int, int>>& indexBombs) { IndexBombs = indexBombs; }
-void Grid::setIndexNails(const std::vector<std::pair<int, int>>& indexNails) { IndexNails = indexNails; }
-void Grid::setIndexDusts(const std::vector<std::pair<int, int>>& indexDusts) { IndexDusts = indexDusts; }
+void Grid::setIndexBombs(const std::list<std::pair<int, int>>& indexBombs) { IndexBombs = indexBombs; }
+void Grid::setIndexNails(const std::list<std::pair<int, int>>& indexNails) { IndexNails = indexNails; }
+void Grid::setIndexDusts(const std::list<std::pair<int, int>>& indexDusts) { IndexDusts = indexDusts; }
