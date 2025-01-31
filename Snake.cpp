@@ -1,4 +1,6 @@
 #include "Snake.h"
+
+
 // Méthodes de la classe
 void Snake::init(const Grid& grid){
     // Fonction qui réinitialise le serpent aux paramètres initiaux
@@ -68,7 +70,7 @@ Grid::TileContent Snake::move(Grid& grid){
         }
         default:{break;}
     }
-    Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn, *this);
+    Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn);
 
     // Rotate vectors from 1 to the right
     std::rotate(IndexColumn.rbegin(), IndexColumn.rbegin() + 1, IndexColumn.rend());
@@ -78,23 +80,24 @@ Grid::TileContent Snake::move(Grid& grid){
     IndexColumn.at(0) = newColumn;
     IndexRow.at(0) = newRow;
 
-    switch(tileContent){
-        case Grid::TileContent::Bomb:{
-            IsAlive = false;
-            break;
-        }
-        case Grid::TileContent::Nail:{
-            shrink(1);
-            break;
-        }
-        case Grid::TileContent::Dust:{
-            grow(1);
-            break;
-        }
-        case Grid::TileContent::Snake:{
-            IsAlive = false;
-            break;
-        }
+    if( isSnake(newRow, newColumn) ){
+        tileContent = Grid::TileContent::Snake;
+        IsAlive = false;
+    }else{
+        switch(tileContent){
+            case Grid::TileContent::Bomb:{
+                IsAlive = false;
+                break;
+            }
+            case Grid::TileContent::Nail:{
+                shrink(1);
+                break;
+            }
+            case Grid::TileContent::Dust:{
+                grow(1);
+                break;
+            }
+        }   
     }
 
     return tileContent;
@@ -112,27 +115,28 @@ bool Snake::shrink(int shrinkingValue){
     // Return false, if the snake is dead
     if( shrinkingValue >= Size ){
         IsAlive = false;
+        return false;
     }else{
         for(int i =0; i<shrinkingValue; i++){
             IndexColumn.pop_back();
             IndexRow.pop_back();
         }
         Size-=shrinkingValue;
+        return true;
     }
 }
+bool Snake::isSnake(int rowIndex, int columnIndex) const{
+    // Fonction qui permet de dire si la case ciblée cible une case
+    // serpent ou non
 
-// bool Snake::isSnake(int rowIndex, int columnIndex){
-//     // Fonction qui permet de dire si la case ciblée cible une case
-//     // serpent ou non
-//     bool isSnake {false};
-//     for(int i =0; i<Size; i++){
-//         if( IndexColumn.at(i) == columnIndex && IndexRow.at(i) == rowIndex){
-//             isSnake = true;
-//             break;
-//         }
-//     }
-//     return isSnake;
-// }
+    std::vector<int>::const_iterator it1 = std::find(IndexRow.begin(), IndexRow.end(), rowIndex);
+    if( it1 != IndexRow.end() ){
+        if( std::find(IndexColumn.begin(), IndexColumn.end(), columnIndex) != IndexColumn.end() ){
+            return true;
+        }
+    }
+    return false;
+}
 
 // void Snake::gridChanged(const Grid& grid){
 //     // Fonction qui actualise le serpent lorsque la grille change

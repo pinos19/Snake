@@ -51,20 +51,9 @@ void Grid::windowChanged(int widthWindow, int heightWindow){
     OffsetYTop = (heightWindow % CellHeight) / 2;
     OffsetYBottom = ceil(static_cast<double> (heightWindow % CellHeight)/2);
 }
-Grid::TileContent Grid::getContentTile(int rowIndex, int ColumnIndex, const Snake &snake){
+Grid::TileContent Grid::getContentTile(int rowIndex, int ColumnIndex){
     // Function which check the content of a cell
     // Return the content, TileContent
-
-    // Beginning with the snake, we check if the cell does not contain a part of the snake
-    const std::vector<int> snakeIndexRow = snake.getIndexRow();
-    const std::vector<int> snakeIndexColumn = snake.getIndexColumn();
-
-    std::vector<int>::const_iterator it1 = std::find(snakeIndexRow.cbegin(), snakeIndexRow.cend(), rowIndex);
-    if( it1 != snakeIndexRow.cend() ){
-        if( std::find(snakeIndexColumn.cbegin(), snakeIndexColumn.cend(), ColumnIndex) != snakeIndexColumn.cend() ){
-            return TileContent::Snake;
-        }
-    }
 
     // Now we are going to check the other possibilities
     std::pair<int, int> cellPair {rowIndex, ColumnIndex};

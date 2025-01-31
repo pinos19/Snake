@@ -3,13 +3,12 @@
 
 #include <iostream>
 #include <cmath>
-#include "Grid.h"
 #include <windows.h>
-#include "utils_functions.h"
 #include <vector>
 #include <deque>
 #include <algorithm>
 #include <utility>
+#include "Grid.h"
 
 class Snake{
     public:
@@ -33,7 +32,7 @@ class Snake{
         void grow(int growingValue);
         bool shrink(int shrinkingValue);
         std::vector<std::pair<int, int>> immunitySnake(const Grid& grid, int immunityDistanceHead) const;
-
+        bool isSnake(int rowIndex, int columnIndex) const;
 
         // Getters
         int getSpeed() const;

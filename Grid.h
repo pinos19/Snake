@@ -1,6 +1,7 @@
 #ifndef _GRID_H_
 #define _GRID_H_
 
+
 #include <iostream>
 #include <cmath>
 #include <windows.h>
@@ -8,7 +9,6 @@
 #include <algorithm>
 #include <random>
 #include <utility>
-#include "Snake.h"
 #include <list>
 
 class Grid{
@@ -30,13 +30,12 @@ class Grid{
         std::list<std::pair<int, int>> IndexDusts;
     public:
         Grid() = default;
-
         // Methods
         void init(int widthWindow, int heightWindow);
         void windowChanged(int widthWindow, int heightWindow);
         void fillGridWithElements(const std::vector<std::pair<int, int>>& indexesToAvoid);
         bool popGrid(int rowIndex, int columnIndex);
-        TileContent getContentTile(int rowIndex, int ColumnIndex, const Snake &snake);
+        TileContent getContentTile(int rowIndex, int ColumnIndex);
         TileContent getContentTile(int rowIndex, int ColumnIndex, std::list<std::pair<int, int>>::iterator &it);
 
         // Getters
