@@ -8,7 +8,7 @@ class Game{
     public:
         enum class StateGame {Playing, Pause, Dead, Menu};
         enum class PaintFlag {InitApp, InitGrid, Moving, WinResized, ContinueGame};
-    private:
+
         Grid GameGrid;
         Snake GameSnake;
         COLORREF BackgroundColor;
@@ -16,28 +16,10 @@ class Game{
         int Score;
         StateGame GameState;
         PaintFlag GamePaintFlag;
-    public:
+
         Game() = default;
 
-        // Getters
-        const Grid &getGameGrid() const;
-        const Snake &getGameSnake() const;
-        COLORREF getBackgroundColor() const;
-        bool getInitialized() const;
-        int getScore() const;
-        StateGame getGameState() const;
-        PaintFlag getGamePaintFlag() const;
-
-        // Setters
-        void setGameGrid(const Grid &grid);
-        void setGameSnake(const Snake &snake);
-        void setBackgroundColor(COLORREF backgroundColor);
-        void setInitialized(bool initialized);
-        void setScore(int score);
-        void setGameState(StateGame gameState);
-        void setGamePaintFlag(PaintFlag gamePaintFlag);
-
-        // Méthodes
+        // Methods
         void init(int widthWindow, int heightWindow);
         void clearFigure(const RECT& rectWindow, HDC hdc);
         void drawGrid(HDC hdc);
@@ -45,7 +27,7 @@ class Game{
         void windowChanged(const RECT& newWindow, HDC hdc);
         void updateSnake(HDC hdc);
         void actualizeGridElements();
-        void drawElements(HDC hdc);
+        void drawElements(HDC hdc, const std::list<std::pair<int, int>> &elementList, COLORREF elementColor);
         void drawBomb(HDC hdc);
         void drawNail(HDC hdc);
         void drawDust(HDC hdc);

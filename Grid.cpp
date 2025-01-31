@@ -150,7 +150,7 @@ void Grid::fillGridWithElements(const std::vector<std::pair<int, int>>& indexesT
                 std::pair<int, int> cellPair {j, i};
 
                 // We need to check if the area is immune or not
-                if( std::find(indexesToAvoid.cbegin(), indexesToAvoid.cend(), cellPair) != indexesToAvoid.cend()){
+                if( std::find(indexesToAvoid.cbegin(), indexesToAvoid.cend(), cellPair) == indexesToAvoid.cend()){
                     // We are in an area not immune
                     typeElement = dist(gen);
                     if( typeElement >= 9 ){

@@ -1,23 +1,5 @@
 #include "Game.h"
 
-// Getters
-const Grid &Game::getGameGrid() const{return GameGrid;}
-const Snake &Game::getGameSnake() const{return GameSnake;}
-COLORREF Game::getBackgroundColor() const{return BackgroundColor;}
-bool Game::getInitialized() const{return Initialized;}
-int Game::getScore() const{return Score;}
-Game::StateGame Game::getGameState() const{return GameState;}
-Game::PaintFlag Game::getGamePaintFlag() const{return GamePaintFlag;}
-
-// Setters
-void Game::setGameGrid(const Grid &grid){GameGrid = grid;}
-void Game::setGameSnake(const Snake &snake){GameSnake = snake;}
-void Game::setBackgroundColor(COLORREF backgroundColor){BackgroundColor = backgroundColor;}
-void Game::setInitialized(bool initialized){Initialized = initialized;}
-void Game::setScore(int score){Score = score;}
-void Game::setGameState(StateGame gameState){GameState = gameState;}
-void Game::setGamePaintFlag(PaintFlag gamePaintFlag){GamePaintFlag = gamePaintFlag;}
-
 // Implémentation des méthodes
 void Game::init(int widthWindow, int heightWindow) {
     // Initialisation du jeu
@@ -37,7 +19,7 @@ void Game::clearFigure(const RECT& rectWindow, HDC hdc){
     DeleteObject(hbrush);
 }
 void Game::drawGrid(HDC hdc) {
-    // Code pour dessiner la grille
+    // Drawing of the grid
     int x, y;
     int lastColumn = GameGrid.getCellWidth()*GameGrid.getNumberColumns()+GameGrid.getNumberColumns()+1+GameGrid.getOffsetXLeft();
     int lastRow = GameGrid.getCellHeight()*GameGrid.getNumberLines()+GameGrid.getNumberLines()+1+GameGrid.getOffsetYTop();
@@ -62,17 +44,55 @@ void Game::drawGrid(HDC hdc) {
     SelectObject(hdc, hOldPen);
     DeleteObject(hPen);
 }
+void Game::drawSnake(HDC hdc) {
+    // Function which draw the snake
+    RECT rectTemp;
 
-// void Game::drawSnake(const Snake& snake, HDC hdc, const COLORREF colorSnake) {
-//     // Code pour dessiner le serpent
+    HBRUSH hbrush = CreateSolidBrush(GameSnake.getColor());
+    for(int i = 0; i <GameSnake.getSize(); i++){
+        rectTemp = {GameGrid.getOffsetXLeft()+(GameSnake.getIndexColumn().at(i)-1)*(GameGrid.getCellWidth()+1)+2,
+         GameGrid.getOffsetYTop() + (GameSnake.getIndexRow().at(i)-1)*(GameGrid.getCellHeight()+1)+2,
+          GameGrid.getOffsetXLeft() + GameSnake.getIndexColumn().at(i)*(GameGrid.getCellWidth()+1)-1,
+           GameGrid.getOffsetYTop() + GameSnake.getIndexRow().at(i)*(GameGrid.getCellHeight()+1)-1};
+        FillRect(hdc, &rectTemp, hbrush);   
+    }
+    DeleteObject(hbrush);
+}
+void Game::drawElements(HDC hdc, const std::list<std::pair<int, int>> &elementList, COLORREF elementColor){
+    // Fonction which allows us to draw element
+    int iColumn {0}, iRow {0};
 
-//     HBRUSH hbrush = CreateSolidBrush(colorSnake);
-//     std::vector<RECT> snakeRectangle = snake.getSnakeRect();
-//     for(int i = 0; i <snake.getSize(); i++){
-//         FillRect(hdc, &snakeRectangle.at(i), hbrush);
-//     }
-//     DeleteObject(hbrush);
-// }
+    // Color options
+    HBRUSH hBrush = CreateSolidBrush(elementColor);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+    HPEN hPen = CreatePen(PS_SOLID, 1, elementColor);
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+    std::list<std::pair<int, int>>::const_iterator iteratorList {elementList.cbegin()};
+    std::pair<int, int> pairTemp;
+
+    while( iteratorList!=elementList.cend() ){
+        pairTemp = *iteratorList;
+        
+        iRow = pairTemp.first;
+        iColumn = pairTemp.second;
+
+        Ellipse(hdc, GameGrid.getOffsetXLeft()+(iColumn-1)*(GameGrid.getCellWidth()+1)+2,
+        GameGrid.getOffsetYTop() + (iRow-1)*(GameGrid.getCellHeight()+1)+2,
+        GameGrid.getOffsetXLeft() + iColumn*(GameGrid.getCellWidth()+1)-1,
+        GameGrid.getOffsetYTop() + iRow*(GameGrid.getCellHeight()+1)-1);
+
+        iteratorList++;
+    }
+
+    // Restore ancient pen and brush
+    SelectObject(hdc, hOldBrush);
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hBrush);
+    DeleteObject(hPen);
+}
+
+
 // void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground) {
 //     // Code pour gérer les changements de fenêtre
 
@@ -120,85 +140,4 @@ void Game::drawGrid(HDC hdc) {
 
 //     // On réinitialise les éléments sur la grille
 //     grid.fillGridWithElements(indexImmunitySnake);
-// }
-// void Game::drawElements(const Grid& grid, HDC hdc, const COLORREF colorBomb, const COLORREF colorNail, const COLORREF colorDust){
-//     // Fonction qui permet de dessiner sur la figure les éléments de la grille
-
-//     drawBomb(grid, hdc, colorBomb);
-//     drawNail(grid, hdc, colorNail);
-//     drawDust(grid, hdc, colorDust);
-// }
-// void Game::drawBomb(const Grid& grid, HDC hdc, const COLORREF colorBomb){
-//     int i {0}, index {0}, iColumn {0}, iRow {0};
-//     const std::vector<int>& indexBombs = grid.getIndexBombs();
-
-//     HBRUSH hBrush = CreateSolidBrush(colorBomb);
-//     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-//     HPEN hPen = CreatePen(PS_SOLID, 1, colorBomb);
-//     HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-//     // On boucle sur chaque vecteur et on dessine les éléments
-//     for(i = 0; i< indexBombs.size(); i++){
-//         // Dessine un cercle pour la bombe
-//         index = indexBombs.at(i);
-//         iColumn = std::ceil(static_cast<double> (index)/grid.getNumberLines());
-//         iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
-//         Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
-//         grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
-//         grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-1,
-//         grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-1);
-//     }
-//     // Restauration des anciens pinceaux et stylos
-//     SelectObject(hdc, hOldBrush);
-//     SelectObject(hdc, hOldPen);
-//     DeleteObject(hBrush);
-//     DeleteObject(hPen);
-// }
-// void Game::drawNail(const Grid& grid, HDC hdc, const COLORREF colorNail){
-//     int i {0}, index {0}, iColumn {0}, iRow {0};
-//     const std::vector<int>& indexNails = grid.getIndexNails();
-
-//     HBRUSH hBrush = CreateSolidBrush(colorNail);
-//     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-//     HPEN hPen = CreatePen(PS_SOLID, 1, colorNail);
-//     HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-//     for(i = 0; i< indexNails.size(); i++){
-//         // Dessine un cercle pour le clou 
-//         index = indexNails.at(i);
-//         iColumn = std::ceil(static_cast<double> (index)/grid.getNumberLines());
-//         iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
-//         Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
-//         grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
-//         grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-1,
-//         grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-1);
-//     }
-//     // Restauration des anciens pinceaux et stylos
-//     SelectObject(hdc, hOldBrush);
-//     SelectObject(hdc, hOldPen);
-//     DeleteObject(hBrush);
-//     DeleteObject(hPen);
-// }
-// void Game::drawDust(const Grid& grid, HDC hdc, const COLORREF colorDust){
-//     int i {0}, index {0}, iColumn {0}, iRow {0};
-//     const std::vector<int>& indexDusts = grid.getIndexDusts();
-
-//     HBRUSH hBrush = CreateSolidBrush(colorDust);
-//     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-//     HPEN hPen = CreatePen(PS_SOLID, 1, colorDust);
-//     HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-//     for(i = 0; i< indexDusts.size(); i++){
-//         // Dessine un cercle pour la poussière 
-//         index = indexDusts.at(i);
-//         iColumn = std::ceil(static_cast<double> (index)/grid.getNumberLines());
-//         iRow = grid.getNumberLines() - (iColumn*grid.getNumberLines() - index);
-//         Ellipse(hdc, grid.getOffsetXLeft()+(iColumn-1)*(grid.getCellWidth()+1)+2,
-//         grid.getOffsetYTop() + (iRow-1)*(grid.getCellHeight()+1)+2,
-//         grid.getOffsetXLeft() + iColumn*(grid.getCellWidth()+1)-1,
-//         grid.getOffsetYTop() + iRow*(grid.getCellHeight()+1)-1);
-//     }
-//     // Restauration des anciens pinceaux et stylos
-//     SelectObject(hdc, hOldBrush);
-//     SelectObject(hdc, hOldPen);
-//     DeleteObject(hBrush);
-//     DeleteObject(hPen);
 // }

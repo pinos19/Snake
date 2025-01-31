@@ -207,8 +207,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if( hButton ){
                     DestroyWindow(hButton);
                     InvalidateRect(hwnd, nullptr, TRUE);
-                    game->setGamePaintFlag(Game::PaintFlag::InitGrid);
-                    game->setGameState(Game::StateGame::Playing);
+                    game->GamePaintFlag = Game::PaintFlag::InitGrid;
+                    std::vector<std::pair<int, int>> elementsToAvoid = game->GameSnake.immunitySnake(game->GameGrid, 10);
+                    game->GameGrid.fillGridWithElements(elementsToAvoid);
+                    game->GameState = Game::StateGame::Playing;
                 }
             }
             // if( controlID == BUTTON_CONTINUE_ID && notificationCode == BN_CLICKED){
@@ -286,7 +288,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             return 0;
         case WM_PAINT: {
             game = (Game*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-            switch( game->getGamePaintFlag() ){
+            switch( game->GamePaintFlag){
                 case Game::PaintFlag::InitApp:{
                     // Initial display of the application
                     PAINTSTRUCT ps;
@@ -310,9 +312,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     // Drawing of the grid and the snake
                     game->clearFigure(rectWindow, hdc);
                     game->drawGrid(hdc);
-                    // Game::drawSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor());
-                    // Game::drawElements(*windowData->grid, hdc, RGB(255,0,0), RGB(255,255,0), RGB(0,255,0));
-
+                    game->drawSnake(hdc);
+                    game->drawElements(hdc,game->GameGrid.getIndexBombs(), RGB(255,0,0));
+                    game->drawElements(hdc,game->GameGrid.getIndexNails(), RGB(0,255,255));
+                    game->drawElements(hdc,game->GameGrid.getIndexDusts(), RGB(0,255,0));
 
                     EndPaint(hwnd, &ps);
                     break;
@@ -394,7 +397,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             // Window size changed
             game = (Game*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-            if( game->getInitialized() ){
+            if( game->Initialized ){
                 // The window is initialized
 
                 // RECT rectWindow;
@@ -444,7 +447,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
     if (!hwnd) return 0;
     ShowWindow(hwnd, nCmdShow);
-    game->setInitialized(true);
+    game->Initialized = true;
 
 
     MSG msg = {};

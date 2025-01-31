@@ -137,6 +137,50 @@ bool Snake::isSnake(int rowIndex, int columnIndex) const{
     }
     return false;
 }
+std::vector<std::pair<int, int>> Snake::immunitySnake(const Grid& grid, int immunityDistanceHead) const{
+    // Function which draws an immunity rectangle around the snake in order to avoid
+    // putting elements on the snake when the grid is refreshing
+    std::vector<std::pair<int, int>> immunityIndex;
+    int rowHead = IndexRow.front();
+    int columnHead = IndexColumn.front();
+    int left {1}, top {1}, bottom{grid.getNumberLines()}, right{grid.getNumberColumns()};
+
+    // We immune the snake, the row and column indexes
+    for(int i = 0; i < Size; i++){
+        immunityIndex.emplace_back(IndexRow.at(i), IndexColumn.at(i));
+    }
+
+    // Now we draw a rectangle around the head of the snake. The rectangle is limited to the 
+    // window dimensions. It means that the constraint of the immunityDistanceHead may not
+    // be respected if the head is too close from the border
+    if( rowHead - immunityDistanceHead + 1 >= 0){
+        // We do not exceed top
+        top = rowHead - immunityDistanceHead;
+    }
+    if( grid.getNumberLines() - rowHead >= immunityDistanceHead){
+        // We do not exceed bottom
+        bottom = rowHead + immunityDistanceHead;
+    }
+    if( columnHead - immunityDistanceHead + 1 >= 0){
+        // We do not exceed left
+        left = columnHead - immunityDistanceHead;
+    }
+    if( grid.getNumberColumns() - columnHead >= immunityDistanceHead){
+        // We do not exceed right
+        right = columnHead + immunityDistanceHead;
+    }
+
+    // Now we immune all the indexes in the rectangle of the head of the snake
+    int numberColumns = right - left + 1;
+    int numberRows = bottom - top + 1;
+
+    for(int i = 0; i < numberRows; i++){
+        for(int j = 0; j < numberColumns; j++){
+            immunityIndex.emplace_back(top + i, left + j);
+        }
+    }
+    return immunityIndex;
+}
 
 // void Snake::gridChanged(const Grid& grid){
 //     // Fonction qui actualise le serpent lorsque la grille change
@@ -186,51 +230,6 @@ bool Snake::isSnake(int rowIndex, int columnIndex) const{
 //     }
 //     return RECT {left, top, right, bottom};
 // }
-
-std::vector<std::pair<int, int>> Snake::immunitySnake(const Grid& grid, int immunityDistanceHead) const{
-    // Function which draws an immunity rectangle around the snake in order to avoid
-    // putting elements on the snake when the grid is refreshing
-    std::vector<std::pair<int, int>> immunityIndex;
-    int rowHead = IndexRow.front();
-    int columnHead = IndexColumn.front();
-    int left {1}, top {1}, bottom{grid.getNumberLines()}, right{grid.getNumberColumns()};
-
-    // We immune the snake, the row and column indexes
-    for(int i = 0; i < Size; i++){
-        immunityIndex.emplace_back(IndexRow.at(i), IndexColumn.at(i));
-    }
-
-    // Now we draw a rectangle around the head of the snake. The rectangle is limited to the 
-    // window dimensions. It means that the constraint of the immunityDistanceHead may not
-    // be respected if the head is too close from the border
-    if( rowHead - immunityDistanceHead + 1 >= 0){
-        // We do not exceed top
-        top = rowHead - immunityDistanceHead;
-    }
-    if( grid.getNumberLines() - rowHead >= immunityDistanceHead){
-        // We do not exceed bottom
-        bottom = rowHead + immunityDistanceHead;
-    }
-    if( columnHead - immunityDistanceHead + 1 >= 0){
-        // We do not exceed left
-        left = columnHead - immunityDistanceHead;
-    }
-    if( grid.getNumberColumns() - columnHead >= immunityDistanceHead){
-        // We do not exceed right
-        right = columnHead + immunityDistanceHead;
-    }
-
-    // Now we immune all the indexes in the rectangle of the head of the snake
-    int numberColumns = right - left + 1;
-    int numberRows = bottom - top + 1;
-
-    for(int i = 0; i < numberRows; i++){
-        for(int j = 0; j < numberColumns; j++){
-            immunityIndex.emplace_back(top + i, left + j);
-        }
-    }
-    return immunityIndex;
-}
 
 // Getters
 int Snake::getSpeed() const { return Speed;}
