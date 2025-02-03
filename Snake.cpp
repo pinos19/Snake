@@ -189,47 +189,27 @@ std::vector<std::pair<int, int>> Snake::immunitySnake(const Grid& grid, int immu
 //     }
 // }
 
-// RECT Snake::invalidateSnake(){
-//     // Fonction qui permet de récupérer la zone rectangulaire du serpent actuel et du dernier carré.
-//     // La fonction retourne le rectangle d'invalidation
-//     // On initialise les valeurs sur le rectangle de tête
-//     int bottom = SnakeRect.front().bottom;
-//     int top = SnakeRect.front().top;
-//     int left = SnakeRect.front().left;
-//     int right = SnakeRect.front().right;
-//     int i {0};
-//     for(i =1; i< Size; i++){
-//         // On parcourt tout le serpent et on actualise les côtés du rectangle à invalider
-//         if( SnakeRect.at(i).bottom > bottom ){
-//             bottom = SnakeRect.at(i).bottom;
-//         }
-//         if( SnakeRect.at(i).top < top ){
-//             top = SnakeRect.at(i).top;
-//         }
-//         if( SnakeRect.at(i).right > right ){
-//             right = SnakeRect.at(i).right;
-//         }
-//         if( SnakeRect.at(i).left < left ){
-//             left = SnakeRect.at(i).left;
-//         }
-//     }
-//     // On parcourt les rectangles précédents pour les inclure aussi
-//     for(i = 0; i < SnakePreviousRect.size(); i++){
-//         if( SnakePreviousRect.at(i).bottom > bottom ){
-//             bottom = SnakePreviousRect.at(i).bottom;
-//         }
-//         if( SnakePreviousRect.at(i).top < top ){
-//             top = SnakePreviousRect.at(i).top;
-//         }
-//         if( SnakePreviousRect.at(i).right > right ){
-//             right = SnakePreviousRect.at(i).right;
-//         }
-//         if( SnakePreviousRect.at(i).left < left ){
-//             left = SnakePreviousRect.at(i).left;
-//         }
-//     }
-//     return RECT {left, top, right, bottom};
-// }
+RECT Snake::invalidateSnake(const std::pair<int,int> &lastCellSnake, const Grid &grid) const{
+    // Function which allows us to get the rectangular area of the current snake and the last
+    // rectangle of the snake
+
+    // Copy the vector to find the min and max
+    std::vector<int> rowTemp {IndexRow};
+    rowTemp.push_back(lastCellSnake.first);
+    std::vector<int> colTemp {IndexColumn};
+    rowTemp.push_back(lastCellSnake.second);
+
+    // Max and Min of each, row and column
+    std::pair<std::vector<int>::iterator, std::vector<int>::iterator> minMaxRow = std::minmax_element(rowTemp.begin(), rowTemp.end());
+    std::pair<std::vector<int>::iterator, std::vector<int>::iterator> minMaxCol = std::minmax_element(rowTemp.begin(), rowTemp.end());
+
+    int left = grid.getOffsetXLeft()+(*minMaxCol.first-1)*(grid.getCellWidth()+1);
+    int top = grid.getOffsetYTop() + (*minMaxRow.first-1)*(grid.getCellHeight()+1);
+    int right = grid.getOffsetXLeft() + *minMaxCol.second*(grid.getCellWidth()+1)+1;
+    int bottom = grid.getOffsetYTop() + *minMaxRow.second*(grid.getCellHeight()+1)+1;
+    
+    return RECT {left, top, right, bottom};
+}
 
 // Getters
 int Snake::getSpeed() const { return Speed;}

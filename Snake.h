@@ -33,6 +33,7 @@ class Snake{
         bool shrink(int shrinkingValue);
         std::vector<std::pair<int, int>> immunitySnake(const Grid& grid, int immunityDistanceHead) const;
         bool isSnake(int rowIndex, int columnIndex) const;
+        RECT invalidateSnake(const std::pair<int,int> &lastCellSnake, const Grid &grid) const;
 
         // Getters
         int getSpeed() const;
