@@ -140,28 +140,28 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             game = (Game*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             switch(wParam){
                 case VK_RIGHT:{
-                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Left ){
+                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Left  && game->GameState == Game::StateGame::Playing){
                         game->GameSnake.addDirection(Snake::Direction::Right);
                         game->GamePaintFlag = Game::PaintFlag::Moving;
                     }
                     break;
                 }
                 case VK_LEFT:{
-                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Right ){
+                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Right && game->GameState == Game::StateGame::Playing){
                         game->GameSnake.addDirection(Snake::Direction::Left);
                         game->GamePaintFlag = Game::PaintFlag::Moving;
                     }
                     break;
                 }
                 case VK_UP:{
-                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Down ){
+                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Down && game->GameState == Game::StateGame::Playing){
                         game->GameSnake.addDirection(Snake::Direction::Up);
                         game->GamePaintFlag = Game::PaintFlag::Moving;
                     }
                     break;
                 }
                 case VK_DOWN:{
-                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Up ){
+                    if( game->GameSnake.getCurrentDirection() != Snake::Direction::Up && game->GameState == Game::StateGame::Playing){
                         game->GameSnake.addDirection(Snake::Direction::Down);
                         game->GamePaintFlag = Game::PaintFlag::Moving;
                     }
@@ -189,6 +189,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         HWND hButtonPlay = GetDlgItem(hwnd, BUTTON_PLAY_ID);
                         if( hButtonPlay ){
                             // We delete the PLAY button and play
+                            // std::cout << "Deletion !" << std::endl;
                             DestroyWindow(hButtonPlay);
                             InvalidateRect(hwnd, nullptr, TRUE);
                             SetTimer(hwnd, MOVE_TIMER_ID, game->GameSnake.getSpeed(), nullptr);
@@ -287,6 +288,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             switch( game->GamePaintFlag){
                 case Game::PaintFlag::InitApp:{
                     // Initial display of the application
+                    // std::cout << "InitApp" << std::endl;
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);
 
@@ -299,6 +301,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 }
                 case Game::PaintFlag::InitGrid:{
+                    // std::cout << "InitGrid" << std::endl;
                     // Initialization of the grid
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);
@@ -317,6 +320,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 }
                 case Game::PaintFlag::Moving:{
+                    // std::cout << "Moving" << std::endl;
                     // The snake is moving
                     PAINTSTRUCT ps;
                     HDC hdc = BeginPaint(hwnd, &ps);

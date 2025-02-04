@@ -18,7 +18,7 @@ void Snake::init(const Grid& grid){
 }
 void Snake::addDirection(Snake::Direction direction){
     // Add a direction to
-    if( Directions.size() == 1 ){
+    if( Directions.front() == Direction::None && Directions.size()==1 ){
         Directions.front() = direction;
     }else{
         Directions.push_back(direction);
