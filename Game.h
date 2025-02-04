@@ -31,6 +31,7 @@ class Game{
         void drawBomb(HDC hdc);
         void drawNail(HDC hdc);
         void drawDust(HDC hdc);
+        RECT snakeFormFromIndex(int indexRow, int indexCol);
 };
 
 #endif

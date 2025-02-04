@@ -16,6 +16,33 @@
 #define INIT_APP 7
 
 
+std::ostream &operator<<(std::ostream &os, const Grid::TileContent tileContent){
+    switch(tileContent){
+        case Grid::TileContent::Bomb:{
+            os << "Bomb";
+            break;
+        }
+        case Grid::TileContent::Nail:{
+            os << "Nail";
+            break;
+        }
+        case Grid::TileContent::Dust:{
+            os << "Dust";
+            break;
+        }
+        case Grid::TileContent::Empty:{
+            os << "Empty";
+            break;
+        }
+        case Grid::TileContent::Snake:{
+            os << "Snake";
+            break;
+        }
+    }
+    return os;
+}
+
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     Game* game = nullptr;
     switch (uMsg) {
@@ -25,35 +52,61 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             if (wParam == MOVE_TIMER_ID) {
                 // We move the snake
 
-                std::pair<int, int> lastCellSnake {game->GameSnake.getIndexRow().back(), game->GameSnake.getIndexColumn().back()};
-                Grid::TileContent tileContent = game->GameSnake.move(game->GameGrid);
-                
-                switch( tileContent ){
-                    case Grid::TileContent::Bomb:{
-                        // Kill timer
-                        KillTimer(hwnd, MOVE_TIMER_ID);
+                if( game->GameSnake.getCurrentDirection() != Snake::Direction::None ){
+                    Grid::TileContent tileContent = game->GameSnake.move(game->GameGrid);
+                    // std::cout << tileContent << std::endl;
+                    switch( tileContent ){
+                        case Grid::TileContent::Bomb:{
+                            // Kill timer
+                            KillTimer(hwnd, MOVE_TIMER_ID);
 
-                        // Display of teh button to play again
-                        RECT rectWindow;
-                        GetClientRect(hwnd, &rectWindow);
-                        int width = rectWindow.right - rectWindow.left;
-                        int height = rectWindow.bottom - rectWindow.top;
-                        playButton(hwnd, L"Jouer", width, height, BUTTON_PLAY_ID);
+                            // Display of teh button to play again
+                            RECT rectWindow;
+                            GetClientRect(hwnd, &rectWindow);
+                            int width = rectWindow.right - rectWindow.left;
+                            int height = rectWindow.bottom - rectWindow.top;
+                            playButton(hwnd, L"Jouer", width, height, BUTTON_PLAY_ID);
 
-                        // Initialization of game for the game to restart properly
-                        game->GameState = Game::StateGame::Dead;
-                        game->GamePaintFlag = Game::PaintFlag::InitGrid;
-                        game->GameSnake.init(game->GameGrid);
-                        game->Score = 0;
-                        break;
-                    }
-                    case Grid::TileContent::Nail:{
-                        if( game->GameSnake.getIsAlive() ){
-                            // Snake still alive
+                            // Initialization of game for the game to restart properly
+                            game->GameState = Game::StateGame::Dead;
+                            game->GamePaintFlag = Game::PaintFlag::InitGrid;
+                            game->GameSnake.init(game->GameGrid);
+                            game->Score = 0;
+                            break;
+                        }
+                        case Grid::TileContent::Nail:{
+                            if( game->GameSnake.getIsAlive() ){
+                                // Snake still alive
+                                game->GameSnake.popDirection();
+                                RECT invalidationRect = game->GameSnake.invalidateSnake(game->GameGrid);
+                                InvalidateRect(hwnd, &invalidationRect, TRUE);
+                            }else{
+                                // Snake dead
+                                // Kill timer
+                                KillTimer(hwnd, MOVE_TIMER_ID);
+
+                                // Display of teh button to play again
+                                RECT rectWindow;
+                                GetClientRect(hwnd, &rectWindow);
+                                int width = rectWindow.right - rectWindow.left;
+                                int height = rectWindow.bottom - rectWindow.top;
+                                playButton(hwnd, L"Jouer", width, height, BUTTON_PLAY_ID);
+
+                                // Initialization of game for the game to restart properly
+                                game->GameState = Game::StateGame::Dead;
+                                game->GamePaintFlag = Game::PaintFlag::InitGrid;
+                                game->GameSnake.init(game->GameGrid);
+                                game->Score = 0;
+                            }
+                            break;
+                        }
+                        case Grid::TileContent::Dust:{
                             game->GameSnake.popDirection();
-                            RECT invalidationRect = game->GameSnake.invalidateSnake(lastCellSnake, game->GameGrid);
+                            RECT invalidationRect = game->GameSnake.invalidateSnake(game->GameGrid);
                             InvalidateRect(hwnd, &invalidationRect, TRUE);
-                        }else{
+                            break;
+                        }
+                        case Grid::TileContent::Snake:{
                             // Snake dead
                             // Kill timer
                             KillTimer(hwnd, MOVE_TIMER_ID);
@@ -70,22 +123,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                             game->GamePaintFlag = Game::PaintFlag::InitGrid;
                             game->GameSnake.init(game->GameGrid);
                             game->Score = 0;
+                            break;
                         }
-                        break;
-                    }
-                    case Grid::TileContent::Dust:{
-
-                        break;
-                    }
-                    case Grid::TileContent::Snake:{
-
-                        break;
-                    }
-                    case Grid::TileContent::Empty:{
-                        game->GameSnake.popDirection();
-                        RECT invalidationRect = game->GameSnake.invalidateSnake(lastCellSnake, game->GameGrid);
-                        InvalidateRect(hwnd, &invalidationRect, TRUE);
-                        break;
+                        case Grid::TileContent::Empty:{
+                            game->GameSnake.popDirection();
+                            RECT invalidationRect = game->GameSnake.invalidateSnake(game->GameGrid);
+                            InvalidateRect(hwnd, &invalidationRect, TRUE);
+                            break;
+                        }
                     }
                 }
             }
@@ -271,16 +316,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     EndPaint(hwnd, &ps);
                     break;
                 }
-                // case RECT_MOVING:{
-                //     PAINTSTRUCT ps;
-                //     HDC hdc = BeginPaint(hwnd, &ps);
+                case Game::PaintFlag::Moving:{
+                    // The snake is moving
+                    PAINTSTRUCT ps;
+                    HDC hdc = BeginPaint(hwnd, &ps);
 
-                //     // Actualisation de l'affichage
-                //     Game::updateSnake(*windowData->snake, hdc, windowData->snake->getSnakeColor(), Game::getBackgroundColor());
+                    // Actualisation de l'affichage
+                    game->updateSnake(hdc);
 
-                //     EndPaint(hwnd, &ps);
-                //     break;
-                // }
+                    EndPaint(hwnd, &ps);
+                    break;
+                }
                 // case WINDOW_RESIZED:{
                 //     // On est dans le cas où on redimensionne la fenêtre du jeu
                 //     RECT rectWindow;

@@ -1,7 +1,7 @@
 #include "Snake.h"
 
 
-// Méthodes de la classe
+// Class methods
 void Snake::init(const Grid& grid){
     // Fonction qui réinitialise le serpent aux paramètres initiaux
     Speed = 75;
@@ -13,11 +13,16 @@ void Snake::init(const Grid& grid){
     IndexColumn.push_back(ceil(static_cast<double> (grid.getNumberColumns()/2)));
     IndexRow.push_back(ceil(static_cast<double> (grid.getNumberLines()/2)));
     Color = RGB(255,255,255);
+    cellTail.clear();
     Size = 1;
 }
 void Snake::addDirection(Snake::Direction direction){
-    // Add a direction to the queue of
-    Directions.push_back(direction);
+    // Add a direction to
+    if( Directions.size() == 1 ){
+        Directions.front() = direction;
+    }else{
+        Directions.push_back(direction);
+    }
 }
 bool Snake::popDirection() {
     if( Directions.size() > 1 ){
@@ -35,9 +40,11 @@ Grid::TileContent Snake::move(Grid& grid){
     // Bomb, Dust, Empty, Nail or Snake
     // Return false if the snake is now dead
 
+    cellTail.clear();
     int rowOld = IndexRow.front();
     int columnOld = IndexColumn.front();
     int newRow {rowOld}, newColumn {columnOld}, i, columnTemp, rowTemp;
+    cellTail.emplace_back(IndexRow.back(), IndexColumn.back());
 
     switch( Directions.front() ){
         case Snake::Direction::Up:{
@@ -71,6 +78,10 @@ Grid::TileContent Snake::move(Grid& grid){
         default:{break;}
     }
     Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn);
+    if( isSnake(newRow, newColumn) ){
+        tileContent = Grid::TileContent::Snake;
+        IsAlive = false;
+    }
 
     // Rotate vectors from 1 to the right
     std::rotate(IndexColumn.rbegin(), IndexColumn.rbegin() + 1, IndexColumn.rend());
@@ -80,24 +91,20 @@ Grid::TileContent Snake::move(Grid& grid){
     IndexColumn.at(0) = newColumn;
     IndexRow.at(0) = newRow;
 
-    if( isSnake(newRow, newColumn) ){
-        tileContent = Grid::TileContent::Snake;
-        IsAlive = false;
-    }else{
-        switch(tileContent){
-            case Grid::TileContent::Bomb:{
-                IsAlive = false;
-                break;
-            }
-            case Grid::TileContent::Nail:{
-                shrink(1);
-                break;
-            }
-            case Grid::TileContent::Dust:{
-                grow(1);
-                break;
-            }
-        }   
+    switch(tileContent){
+        case Grid::TileContent::Bomb:{
+            IsAlive = false;
+            break;
+        }
+        case Grid::TileContent::Nail:{
+            cellTail.emplace_back(IndexRow.back(), IndexColumn.back());
+            shrink(1);
+            break;
+        }
+        case Grid::TileContent::Dust:{
+            grow(1);
+            break;
+        }
     }
 
     return tileContent;
@@ -126,12 +133,10 @@ bool Snake::shrink(int shrinkingValue){
     }
 }
 bool Snake::isSnake(int rowIndex, int columnIndex) const{
-    // Fonction qui permet de dire si la case ciblée cible une case
-    // serpent ou non
+    // Function which says if the cell aimed is snake or not
 
-    std::vector<int>::const_iterator it1 = std::find(IndexRow.begin(), IndexRow.end(), rowIndex);
-    if( it1 != IndexRow.end() ){
-        if( std::find(IndexColumn.begin(), IndexColumn.end(), columnIndex) != IndexColumn.end() ){
+    for(int i =0; i<Size; i++){
+        if( IndexRow.at(i) == rowIndex && IndexColumn.at(i) == columnIndex){
             return true;
         }
     }
@@ -181,27 +186,21 @@ std::vector<std::pair<int, int>> Snake::immunitySnake(const Grid& grid, int immu
     }
     return immunityIndex;
 }
-
-// void Snake::gridChanged(const Grid& grid){
-//     // Fonction qui actualise le serpent lorsque la grille change
-//     for(int i = 0; i <Size; i++){
-//         SnakeRect.at(i) = {grid.getOffsetXLeft()+(IndexColumn.at(i)-1)*(grid.getCellWidth()+1)+2, grid.getOffsetYTop() + (IndexRow.at(i)-1)*(grid.getCellHeight()+1)+2, grid.getOffsetXLeft() + IndexColumn.at(i)*(grid.getCellWidth()+1)-1, grid.getOffsetYTop() + IndexRow.at(i)*(grid.getCellHeight()+1)-1};
-//     }
-// }
-
-RECT Snake::invalidateSnake(const std::pair<int,int> &lastCellSnake, const Grid &grid) const{
+RECT Snake::invalidateSnake(const Grid &grid) const{
     // Function which allows us to get the rectangular area of the current snake and the last
     // rectangle of the snake
 
     // Copy the vector to find the min and max
     std::vector<int> rowTemp {IndexRow};
-    rowTemp.push_back(lastCellSnake.first);
     std::vector<int> colTemp {IndexColumn};
-    rowTemp.push_back(lastCellSnake.second);
+    for(const std::pair<int,int> &pair :cellTail){
+        rowTemp.push_back(pair.first);
+        colTemp.push_back(pair.second);
+    }
 
     // Max and Min of each, row and column
     std::pair<std::vector<int>::iterator, std::vector<int>::iterator> minMaxRow = std::minmax_element(rowTemp.begin(), rowTemp.end());
-    std::pair<std::vector<int>::iterator, std::vector<int>::iterator> minMaxCol = std::minmax_element(rowTemp.begin(), rowTemp.end());
+    std::pair<std::vector<int>::iterator, std::vector<int>::iterator> minMaxCol = std::minmax_element(colTemp.begin(), colTemp.end());
 
     int left = grid.getOffsetXLeft()+(*minMaxCol.first-1)*(grid.getCellWidth()+1);
     int top = grid.getOffsetYTop() + (*minMaxRow.first-1)*(grid.getCellHeight()+1);
@@ -219,6 +218,7 @@ int Snake::getSize() const { return Size; }
 COLORREF Snake::getColor() const{ return Color; }
 const std::deque<Snake::Direction>& Snake::getDirections() const{ return Directions; }
 bool Snake::getIsAlive() const { return IsAlive; }
+const std::vector<std::pair<int,int>> Snake::getCellTail() const {return cellTail;} 
 
 // Setters
 void Snake::setSpeed(int speed) { Speed = speed; }

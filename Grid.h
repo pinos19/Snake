@@ -11,6 +11,7 @@
 #include <utility>
 #include <list>
 
+
 class Grid{
     public:
         enum class TileContent {Bomb, Nail, Dust, Snake, Empty};
@@ -68,4 +69,7 @@ class Grid{
         void setIndexNails(const std::list<std::pair<int, int>>& indexNails);
         void setIndexDusts(const std::list<std::pair<int, int>>& indexDusts);
 };
+
+
+
 #endif

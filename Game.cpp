@@ -50,10 +50,7 @@ void Game::drawSnake(HDC hdc) {
 
     HBRUSH hbrush = CreateSolidBrush(GameSnake.getColor());
     for(int i = 0; i <GameSnake.getSize(); i++){
-        rectTemp = {GameGrid.getOffsetXLeft()+(GameSnake.getIndexColumn().at(i)-1)*(GameGrid.getCellWidth()+1)+2,
-         GameGrid.getOffsetYTop() + (GameSnake.getIndexRow().at(i)-1)*(GameGrid.getCellHeight()+1)+2,
-          GameGrid.getOffsetXLeft() + GameSnake.getIndexColumn().at(i)*(GameGrid.getCellWidth()+1)-1,
-           GameGrid.getOffsetYTop() + GameSnake.getIndexRow().at(i)*(GameGrid.getCellHeight()+1)-1};
+        rectTemp = snakeFormFromIndex(GameSnake.getIndexRow().at(i), GameSnake.getIndexColumn().at(i));
         FillRect(hdc, &rectTemp, hbrush);   
     }
     DeleteObject(hbrush);
@@ -91,6 +88,43 @@ void Game::drawElements(HDC hdc, const std::list<std::pair<int, int>> &elementLi
     DeleteObject(hBrush);
     DeleteObject(hPen);
 }
+void Game::updateSnake(HDC hdc) {
+    // Function which actualizes the movement of the snake on the window
+    // We display the head and erase the tail
+
+    HBRUSH hbrushBack = CreateSolidBrush(BackgroundColor);
+    HBRUSH hbrushSnake = CreateSolidBrush(GameSnake.getColor());
+
+    // Actualize the head
+    RECT head = snakeFormFromIndex(GameSnake.getIndexRow().front(), GameSnake.getIndexColumn().front());
+    FillRect(hdc, &head, hbrushSnake);
+
+    // Actualizes the tail
+    int lastRow = GameSnake.getIndexRow().back();
+    int lastCol = GameSnake.getIndexColumn().back();
+    for(const auto &pair:GameSnake.getCellTail()){
+        if( pair.first != lastRow || pair.second != lastCol ){
+            RECT tail = snakeFormFromIndex(pair.first, pair.second);
+            FillRect(hdc, &tail, hbrushBack);
+        }
+    }
+
+    DeleteObject(hbrushBack);
+    DeleteObject(hbrushSnake);
+}
+RECT Game::snakeFormFromIndex(int indexRow, int indexCol){
+    // The function allows us to construct a rectangle for a part of the body of the snake
+    // The function takes an index of row and an index of column
+
+    if( indexRow >= 0 && indexRow <= GameGrid.getNumberLines() && indexCol >= 0 && indexCol <= GameGrid.getNumberColumns() ){
+        return {GameGrid.getOffsetXLeft()+(indexCol-1)*(GameGrid.getCellWidth()+1)+2,
+        GameGrid.getOffsetYTop() + (indexRow-1)*(GameGrid.getCellHeight()+1)+2,
+        GameGrid.getOffsetXLeft() + indexCol*(GameGrid.getCellWidth()+1)-1,
+        GameGrid.getOffsetYTop() + indexRow*(GameGrid.getCellHeight()+1)-1};
+    }else{
+        return {0,0,0,0};
+    }
+}
 
 
 // void Game::windowChanged(Snake& snake, Grid& grid, const RECT& newWindow, HDC hdc, const COLORREF colorSnake, const COLORREF colorGrid, const COLORREF colorBackground) {
@@ -112,25 +146,7 @@ void Game::drawElements(HDC hdc, const std::list<std::pair<int, int>> &elementLi
 //     // Actualisation élements
 //     drawElements(grid, hdc, RGB(255,0,0), RGB(255,255,0), RGB(0,255,0));
 // }
-// void Game::updateSnake(Snake& snake, HDC hdc, const COLORREF colorSnake, const COLORREF colorBackground) {
-//     // Code pour mettre à jour le serpent, uniquement après un déplacement
 
-//     HBRUSH hbrushBack = CreateSolidBrush(colorBackground);
-//     HBRUSH hbrushSnake = CreateSolidBrush(colorSnake);
-
-//     const std::vector<RECT>& snakePrevious = snake.getSnakePreviousRect();
-//     const RECT& snakeLastRect = snake.getSnakeRect().back();
-
-//     for(int i = 0; i< snakePrevious.size(); i++){
-//         if( !EqualRect(&snakePrevious.at(i), &snakeLastRect) ){
-//             FillRect(hdc, &snakePrevious.at(i), hbrushBack);
-//         }
-//     }
-//     FillRect(hdc, &snake.getSnakeRect().front(), hbrushSnake);
-
-//     DeleteObject(hbrushBack);
-//     DeleteObject(hbrushSnake);
-// }
 // void Game::actualizeGridElements(Grid& grid, const Snake& snake){
 //     // Fonction qui permet d'actualiser la position des bombes, de la poussière et des clous en fonction
 //     // de la position du serpent
