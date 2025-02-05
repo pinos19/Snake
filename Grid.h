@@ -38,6 +38,7 @@ class Grid{
         bool popGrid(int rowIndex, int columnIndex);
         TileContent getContentTile(int rowIndex, int ColumnIndex);
         TileContent getContentTile(int rowIndex, int ColumnIndex, std::list<std::pair<int, int>>::iterator &it);
+        void deleteElement(TileContent tileContent, std::list<std::pair<int,int>>::iterator deleteIterator);
 
         // Getters
         int getRatioCell() const;

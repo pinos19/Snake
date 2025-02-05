@@ -168,6 +168,25 @@ void Grid::fillGridWithElements(const std::vector<std::pair<int, int>>& indexesT
         }
     }
 }
+void Grid::deleteElement(Grid::TileContent tileContent, std::list<std::pair<int,int>>::iterator deleteIterator){
+    // Function which delete an element from the list with the iterator given
+
+    switch( tileContent ){
+        case TileContent::Bomb:{
+            IndexBombs.erase(deleteIterator);
+            break;
+        }
+        case TileContent::Nail:{
+            IndexNails.erase(deleteIterator);
+            break;
+        }
+        case TileContent::Dust:{
+            IndexDusts.erase(deleteIterator);
+            break;
+        }
+    }
+
+}
 
 // Getters
 int Grid::getRatioCell() const { return RatioCell; }

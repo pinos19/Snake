@@ -7,7 +7,7 @@
 class Game{
     public:
         enum class StateGame {Playing, Pause, Dead, Menu};
-        enum class PaintFlag {InitApp, InitGrid, Moving, WinResized, ContinueGame};
+        enum class PaintFlag {InitApp, InitGrid, Moving, WinResized, ResumeGame};
 
         Grid GameGrid;
         Snake GameSnake;

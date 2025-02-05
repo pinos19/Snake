@@ -77,7 +77,8 @@ Grid::TileContent Snake::move(Grid& grid){
         }
         default:{break;}
     }
-    Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn);
+    std::list<std::pair<int, int>>::iterator deleteIterator;
+    Grid::TileContent tileContent = grid.getContentTile(newRow, newColumn, deleteIterator);
     if( isSnake(newRow, newColumn) ){
         tileContent = Grid::TileContent::Snake;
         IsAlive = false;
@@ -94,18 +95,22 @@ Grid::TileContent Snake::move(Grid& grid){
     switch(tileContent){
         case Grid::TileContent::Bomb:{
             IsAlive = false;
+            grid.deleteElement(tileContent, deleteIterator);
             break;
         }
         case Grid::TileContent::Nail:{
             cellTail.emplace_back(IndexRow.back(), IndexColumn.back());
             shrink(1);
+            grid.deleteElement(tileContent, deleteIterator);
             break;
         }
         case Grid::TileContent::Dust:{
             grow(1);
+            grid.deleteElement(tileContent, deleteIterator);
             break;
         }
     }
+
 
     return tileContent;
 }
